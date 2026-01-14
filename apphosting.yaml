@@ -1,0 +1,7 @@
+env:
+  - variable: FIREBASE_CLIENT_EMAIL
+    secret: projects/${FIREBASE_PROJECT_ID}/secrets/FIREBASE_CLIENT_EMAIL/versions/latest
+    availability: build, runtime
+  - variable: FIREBASE_PRIVATE_KEY
+    secret: projects/${FIREBASE_PROJECT_ID}/secrets/FIREBASE_PRIVATE_KEY/versions/latest
+    availability: build, runtime

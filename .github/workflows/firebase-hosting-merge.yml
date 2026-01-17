@@ -35,7 +35,10 @@ jobs:
             json = json.replace('MESSAGING_SENDER_ID_PLACEHOLDER', process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID);
             json = json.replace('APP_ID_PLACEHOLDER', process.env.NEXT_PUBLIC_FIREBASE_APP_ID);
             json = json.replace('CLIENT_EMAIL_PLACEHOLDER', process.env.FIREBASE_CLIENT_EMAIL);
-            json = json.replace('PRIVATE_KEY_PLACEHOLDER', process.env.FIREBASE_PRIVATE_KEY);
+            // Escape newlines for JSON
+            const privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
+            const escapedKey = privateKey.replace(/\\n/g, '\\\\n').replace(/\\r/g, '\\\\r');
+            json = json.replace('PRIVATE_KEY_PLACEHOLDER', escapedKey);
             fs.writeFileSync('firebase.json', json);
           "
         env:

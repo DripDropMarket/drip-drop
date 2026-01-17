@@ -25,3 +25,5 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DRIP_DROP_2C2C8 }}
           channelId: live
           projectId: drip-drop-2c2c8
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks

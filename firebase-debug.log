@@ -1393,3 +1393,418 @@
 [debug] [2026-01-17T16:26:12.909Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/us-east1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/ac4f0298-de90-4664-8c11-b9d3971b4633.zip?GoogleAccessId=service-92017673332@gcf-admin-robot.iam.gserviceaccount.com&Expires=1768668972&Signature=B%2BfGP2DM1s%2BAU5Ti6XMiGZIYL96DYfnhX05R8F44I29AANyLeQ4YwmBM0VyHqhHUFdSDfk2ImOPXyOo1rHKgfLSlcPVSuR6PTAcpF39G4xjAhhGkAOtPamAfUjV15IaM0KJ8VZ72dQp%2BBNQE0DBUvHVWY07joc8P2hdZJdug7ouaCJQ5Xdi2WoR%2BXiUVMRo8sfHncOG0kZs0rxNEROlXf0ROVy1MXX6Dtf8buFIPlAsBkSEGq86K2sJvXdO7hn9zu6a1W1Fmwe6ll4YZ6H4kl3%2FvC8jRy90hNJLJxKfiSiAcNwSK7guhu0S3jkHK30PewHr6VIkInpEItA4EYwfiig%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com","object":"ac4f0298-de90-4664-8c11-b9d3971b4633.zip"}}
 [debug] [2026-01-17T16:26:12.912Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/ac4f0298-de90-4664-8c11-b9d3971b4633.zip GoogleAccessId=service-92017673332%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1768668972&Signature=B%2BfGP2DM1s%2BAU5Ti6XMiGZIYL96DYfnhX05R8F44I29AANyLeQ4YwmBM0VyHqhHUFdSDfk2ImOPXyOo1rHKgfLSlcPVSuR6PTAcpF39G4xjAhhGkAOtPamAfUjV15IaM0KJ8VZ72dQp%2BBNQE0DBUvHVWY07joc8P2hdZJdug7ouaCJQ5Xdi2WoR%2BXiUVMRo8sfHncOG0kZs0rxNEROlXf0ROVy1MXX6Dtf8buFIPlAsBkSEGq86K2sJvXdO7hn9zu6a1W1Fmwe6ll4YZ6H4kl3%2FvC8jRy90hNJLJxKfiSiAcNwSK7guhu0S3jkHK30PewHr6VIkInpEItA4EYwfiig%3D%3D
 [debug] [2026-01-17T16:26:12.912Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/ac4f0298-de90-4664-8c11-b9d3971b4633.zip [stream]
+[debug] [2026-01-17T16:37:13.743Z] ----------------------------------------------------------------------
+[debug] [2026-01-17T16:37:13.745Z] Command:       /opt/homebrew/Cellar/node/25.2.1/bin/node /opt/homebrew/bin/firebase deploy --only hosting
+[debug] [2026-01-17T16:37:13.745Z] CLI Version:   15.2.1
+[debug] [2026-01-17T16:37:13.745Z] Platform:      darwin
+[debug] [2026-01-17T16:37:13.745Z] Node Version:  v25.2.1
+[debug] [2026-01-17T16:37:13.745Z] Time:          Sat Jan 17 2026 11:37:13 GMT-0500 (Eastern Standard Time)
+[debug] [2026-01-17T16:37:13.746Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-17T16:37:14.465Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-17T16:37:14.465Z] > authorizing via signed-in user (smolsky.lev@gmail.com)
+[debug] [2026-01-17T16:37:14.465Z] [iam] checking project drip-drop-2c2c8 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-01-17T16:37:14.465Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:14.465Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:14.466Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions [none]
+[debug] [2026-01-17T16:37:14.466Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions x-goog-quota-user=projects/drip-drop-2c2c8
+[debug] [2026-01-17T16:37:14.466Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-01-17T16:37:15.069Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions 200
+[debug] [2026-01-17T16:37:15.070Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-01-17T16:37:15.070Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:15.070Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:15.071Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8 [none]
+[debug] [2026-01-17T16:37:15.344Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8 200
+[debug] [2026-01-17T16:37:15.344Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8 {"projectId":"drip-drop-2c2c8","projectNumber":"92017673332","displayName":"drip-drop","name":"projects/drip-drop-2c2c8","resources":{"hostingSite":"drip-drop-2c2c8"},"state":"ACTIVE","etag":"1_9ed170aa-893c-4663-9082-64d9c554e12d"}
+[debug] [2026-01-17T16:37:16.323Z] defaultcredentials: writing to file /Users/lev/.config/firebase/smolsky_lev_gmail.com_application_default_credentials.json
+[debug] [2026-01-17T16:37:16.324Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:16.324Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:16.324Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites pageToken=&pageSize=10
+[debug] [2026-01-17T16:37:16.740Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites 200
+[debug] [2026-01-17T16:37:16.740Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites {"sites":[{"name":"projects/drip-drop-2c2c8/sites/drip-drop-2c2c8","defaultUrl":"https://drip-drop-2c2c8.web.app","appId":"1:92017673332:web:3fa167035198a8cedc3d21","type":"DEFAULT_SITE"}]}
+[debug] [2026-01-17T16:37:16.740Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:16.740Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:16.741Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:92017673332:web:3fa167035198a8cedc3d21/config [none]
+[debug] [2026-01-17T16:37:17.058Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:92017673332:web:3fa167035198a8cedc3d21/config 200
+[debug] [2026-01-17T16:37:17.058Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:92017673332:web:3fa167035198a8cedc3d21/config {"projectId":"drip-drop-2c2c8","appId":"1:92017673332:web:3fa167035198a8cedc3d21","storageBucket":"drip-drop-2c2c8.firebasestorage.app","apiKey":"AIzaSyBm136kigy42pnY0byWAfWLQTm5lsUXTj4","authDomain":"drip-drop-2c2c8.firebaseapp.com","messagingSenderId":"92017673332","measurementId":"G-F30MNX888P","projectNumber":"92017673332","version":"2"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 15.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2026-01-17T16:37:18.751Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:18.751Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:18.751Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 [none]
+[debug] [2026-01-17T16:37:18.882Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 200
+[debug] [2026-01-17T16:37:18.883Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 {"name":"projects/drip-drop-2c2c8/sites/drip-drop-2c2c8","defaultUrl":"https://drip-drop-2c2c8.web.app","appId":"1:92017673332:web:3fa167035198a8cedc3d21","type":"DEFAULT_SITE"}
+[info] ▲ Next.js 16.1.1 (Turbopack)
+
+[info] - Environments: .env.local, .env.production
+
+
+[info]   Creating an optimized production build ...
+
+[info] ✓ Compiled successfully in 2.3s
+
+[info]   Running TypeScript ...
+
+[info]   Collecting page data using 7 workers ...
+
+[info]   Generating static pages using 7 workers (0/9) ...
+
+[info]   Generating static pages using 7 workers (2/9) 
+
+[info]   Generating static pages using 7 workers (4/9) 
+
+[info]   Generating static pages using 7 workers (6/9) 
+
+[info] ✓ Generating static pages using 7 workers (9/9) in 220.8ms
+
+[info]   Finalizing page optimization ...
+
+[info] 
+
+[info] Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/listings
+├ ƒ /api/listings/[id]
+├ ƒ /api/listings/user/[userId]
+├ ○ /listings
+├ ƒ /listings/[id]
+├ ○ /listings/create
+├ ○ /login
+└ ○ /profile
+
+
+
+[info] ○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+[info] Building a Cloud Function to run this application. This is needed due to:
+[info]  • non-static component /api/listings/[id]/route
+[info]  • non-static component /api/listings/route
+[info]  • non-static component /api/listings/user/[userId]/route
+[info]  • non-static component /listings/[id]/page
+[info] 
+[debug] [2026-01-17T16:37:25.714Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:25.714Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:25.714Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 [none]
+[debug] [2026-01-17T16:37:26.045Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 200
+[debug] [2026-01-17T16:37:26.045Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/drip-drop-2c2c8/sites/drip-drop-2c2c8 {"name":"projects/drip-drop-2c2c8/sites/drip-drop-2c2c8","defaultUrl":"https://drip-drop-2c2c8.web.app","appId":"1:92017673332:web:3fa167035198a8cedc3d21","type":"DEFAULT_SITE"}
+[warn] ⚠  This integration expects Node version 20, 22, or 24. You're running version 25, problems may be encountered. 
+[debug] [2026-01-17T16:37:34.387Z] [web frameworks] effective firebase.json:  {
+  "hosting": [
+    {
+      "source": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "frameworksBackend": {
+        "region": "us-east1"
+      },
+      "site": "drip-drop-2c2c8",
+      "rewrites": [
+        {
+          "source": "/**",
+          "function": {
+            "functionId": "ssrdripdrop2c2c8",
+            "region": "us-east1",
+            "pinTag": true
+          }
+        }
+      ],
+      "redirects": [],
+      "headers": [
+        {
+          "source": "/_global-error",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error"
+            }
+          ]
+        },
+        {
+          "source": "/_not-found",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/_not-found/layout,_N_T_/_not-found/page,_N_T_/_not-found"
+            }
+          ]
+        },
+        {
+          "source": "/favicon.ico",
+          "headers": [
+            {
+              "key": "cache-control",
+              "value": "public, max-age=0, must-revalidate"
+            },
+            {
+              "key": "content-type",
+              "value": "image/x-icon"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/favicon.ico/layout,_N_T_/favicon.ico/route,_N_T_/favicon.ico"
+            }
+          ]
+        },
+        {
+          "source": "/listings/create",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/listings/layout,_N_T_/listings/create/layout,_N_T_/listings/create/page,_N_T_/listings/create"
+            }
+          ]
+        },
+        {
+          "source": "/listings",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/listings/layout,_N_T_/listings/page,_N_T_/listings"
+            }
+          ]
+        },
+        {
+          "source": "/login",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/login/layout,_N_T_/login/page,_N_T_/login"
+            }
+          ]
+        },
+        {
+          "source": "/profile",
+          "headers": [
+            {
+              "key": "x-nextjs-stale-time",
+              "value": "300"
+            },
+            {
+              "key": "x-nextjs-prerender",
+              "value": "1"
+            },
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/profile/layout,_N_T_/profile/page,_N_T_/profile"
+            }
+          ]
+        },
+        {
+          "source": "/**/*.[jt]s",
+          "headers": [
+            {
+              "key": "Set-Cookie",
+              "value": "__FIREBASE_DEFAULTS__=eyJjb25maWciOnsicHJvamVjdElkIjoiZHJpcC1kcm9wLTJjMmM4IiwiYXBwSWQiOiIxOjkyMDE3NjczMzMyOndlYjozZmExNjcwMzUxOThhOGNlZGMzZDIxIiwic3RvcmFnZUJ1Y2tldCI6ImRyaXAtZHJvcC0yYzJjOC5maXJlYmFzZXN0b3JhZ2UuYXBwIiwiYXBpS2V5IjoiQUl6YVN5Qm0xMzZraWd5NDJwblkwYnlXQWZXTFFUbTVsc1VYVGo0IiwiYXV0aERvbWFpbiI6ImRyaXAtZHJvcC0yYzJjOC5maXJlYmFzZWFwcC5jb20iLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjkyMDE3NjczMzMyIiwibWVhc3VyZW1lbnRJZCI6IkctRjMwTU5YODg4UCIsInByb2plY3ROdW1iZXIiOiI5MjAxNzY3MzMzMiIsInZlcnNpb24iOiIyIn0sIl9hdXRoVG9rZW5TeW5jVVJMIjoiL19fc2Vzc2lvbiJ9; SameSite=Strict; Expires=2027-12-13T03:17:34.387Z; Path=/;"
+            }
+          ]
+        }
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "public": ".firebase/drip-drop-2c2c8/hosting",
+      "webFramework": "next_ssr"
+    }
+  ],
+  "functions": [
+    {
+      "source": ".firebase/drip-drop-2c2c8/functions",
+      "codebase": "firebase-frameworks-drip-drop-2c2c8"
+    }
+  ]
+}
+[debug] [2026-01-17T16:37:34.387Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-17T16:37:34.387Z] > authorizing via signed-in user (smolsky.lev@gmail.com)
+[debug] [2026-01-17T16:37:34.387Z] [iam] checking project drip-drop-2c2c8 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-01-17T16:37:34.387Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:34.387Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:34.388Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions [none]
+[debug] [2026-01-17T16:37:34.388Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions x-goog-quota-user=projects/drip-drop-2c2c8
+[debug] [2026-01-17T16:37:34.388Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-17T16:37:34.612Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions 200
+[debug] [2026-01-17T16:37:34.612Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-01-17T16:37:34.612Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:34.613Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:34.613Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/drip-drop-2c2c8/locations/-/functions [none]
+[debug] [2026-01-17T16:37:35.248Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/drip-drop-2c2c8/locations/-/functions 200
+[debug] [2026-01-17T16:37:35.248Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/drip-drop-2c2c8/locations/-/functions {}
+[debug] [2026-01-17T16:37:35.249Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.249Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.249Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2026-01-17T16:37:35.763Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/-/functions 200
+[debug] [2026-01-17T16:37:35.764Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/-/functions {"functions":[{"name":"projects/drip-drop-2c2c8/locations/us-east1/functions/ssrdripdrop2c2c8","buildConfig":{"build":"projects/92017673332/locations/us-east1/builds/22f9eec2-0edb-4324-9d68-d95586178063","runtime":"nodejs24","entryPoint":"ssrdripdrop2c2c8","source":{"storageSource":{"bucket":"gcf-v2-sources-92017673332-us-east1","object":"ssrdripdrop2c2c8/function-source.zip","generation":"1768666253106415"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/drip-drop-2c2c8/locations/us-east1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-92017673332-us-east1","object":"ssrdripdrop2c2c8/function-source.zip","generation":"1768666253106415"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/drip-drop-2c2c8/serviceAccounts/92017673332-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/drip-drop-2c2c8/locations/us-east1/services/ssrdripdrop2c2c8","timeoutSeconds":60,"environmentVariables":{"VERCEL_URL":"drip-drop-2c2c8.web.app","__FIREBASE_FRAMEWORKS_ENTRY__":"next.js","__FIREBASE_DEFAULTS__":"{\"config\":{\"projectId\":\"drip-drop-2c2c8\",\"appId\":\"1:92017673332:web:3fa167035198a8cedc3d21\",\"storageBucket\":\"drip-drop-2c2c8.firebasestorage.app\",\"apiKey\":\"AIzaSyBm136kigy42pnY0byWAfWLQTm5lsUXTj4\",\"authDomain\":\"drip-drop-2c2c8.firebaseapp.com\",\"messagingSenderId\":\"92017673332\",\"measurementId\":\"G-F30MNX888P\",\"projectNumber\":\"92017673332\",\"version\":\"2\"},\"_authTokenSyncURL\":\"/__session\"}","FIREBASE_CONFIG":"{\"projectId\":\"drip-drop-2c2c8\",\"storageBucket\":\"drip-drop-2c2c8.firebasestorage.app\"}","GCLOUD_PROJECT":"drip-drop-2c2c8","EVENTARC_CLOUD_EVENT_SOURCE":"projects/drip-drop-2c2c8/locations/us-east1/services/ssrdripdrop2c2c8","FUNCTION_TARGET":"ssrdripdrop2c2c8","LOG_EXECUTION_ID":"true"},"maxInstanceCount":20,"ingressSettings":"ALLOW_ALL","uri":"https://ssrdripdrop2c2c8-lphcaovghq-ue.a.run.app","serviceAccountEmail":"92017673332-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"ssrdripdrop2c2c8-00011-tud","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2026-01-17T16:13:29.523760769Z","labels":{"firebase-functions-codebase":"firebase-frameworks-drip-drop-2c2c8","firebase-functions-hash":"b67626f7e11487bfd09604e36da7891eb4a3baaf","deployment-tool":"cli-firebase"},"environment":"GEN_2","url":"https://us-east1-drip-drop-2c2c8.cloudfunctions.net/ssrdripdrop2c2c8","createTime":"2026-01-14T17:37:33.168330505Z","satisfiesPzi":true}]}
+[info] i  hosting: The following function(s) are pinned to site drip-drop-2c2c8 and will be deployed as well: ssrdripdrop2c2c8 
+[info] 
+[info] === Deploying to 'drip-drop-2c2c8'...
+[info] 
+[info] i  deploying functions, hosting 
+[debug] [2026-01-17T16:37:35.770Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.770Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.770Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 [none]
+[debug] [2026-01-17T16:37:35.883Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 200
+[debug] [2026-01-17T16:37:35.883Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 {"projectNumber":"92017673332","projectId":"drip-drop-2c2c8","lifecycleState":"ACTIVE","name":"drip-drop","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-01-14T02:33:45.305022Z"}
+[info] i  functions: preparing codebase firebase-frameworks-drip-drop-2c2c8 for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-01-17T16:37:35.886Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.886Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:35.886Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8/adminSdkConfig [none]
+[debug] [2026-01-17T16:37:36.190Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8/adminSdkConfig 200
+[debug] [2026-01-17T16:37:36.190Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/drip-drop-2c2c8/adminSdkConfig {"projectId":"drip-drop-2c2c8","storageBucket":"drip-drop-2c2c8.firebasestorage.app"}
+[debug] [2026-01-17T16:37:36.191Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:36.191Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:36.191Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/drip-drop-2c2c8/configs [none]
+[debug] [2026-01-17T16:37:36.401Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/drip-drop-2c2c8/configs 200
+[debug] [2026-01-17T16:37:36.401Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/drip-drop-2c2c8/configs {}
+[debug] [2026-01-17T16:37:36.403Z] Validating nodejs source
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-01-17T16:37:36.837Z] > [functions] package.json contents: {
+  "name": "drip-drop",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "firebase": "^12.7.0",
+    "firebase-admin": "^13.6.0",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "firebase-frameworks": "^0.11.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "engines": {
+    "node": "24"
+  },
+  "main": "server.js"
+}
+[debug] [2026-01-17T16:37:36.837Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase firebase-frameworks-drip-drop-2c2c8 to determine what to deploy 
+[debug] [2026-01-17T16:37:36.837Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-01-17T16:37:36.842Z] Found firebase-functions binary at '/Users/lev/code/drip-drop/.firebase/drip-drop-2c2c8/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8337
+
+[debug] [2026-01-17T16:37:37.524Z] Got response from /__/functions.yaml {"endpoints":{"ssrdripdrop2c2c8":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-east1"],"labels":{},"httpsTrigger":{},"entryPoint":"ssrdripdrop2c2c8"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2026-01-17T16:37:41.554Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-17T16:37:41.554Z] > authorizing via signed-in user (smolsky.lev@gmail.com)
+[debug] [2026-01-17T16:37:41.554Z] [iam] checking project drip-drop-2c2c8 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2026-01-17T16:37:41.554Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:41.554Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:41.554Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions [none]
+[debug] [2026-01-17T16:37:41.554Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions x-goog-quota-user=projects/drip-drop-2c2c8
+[debug] [2026-01-17T16:37:41.555Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-01-17T16:37:41.797Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions 200
+[debug] [2026-01-17T16:37:41.798Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-01-17T16:37:41.798Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:41.799Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:41.799Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/drip-drop-2c2c8/instances pageSize=100&pageToken=
+[debug] [2026-01-17T16:37:42.316Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/drip-drop-2c2c8/instances 200
+[debug] [2026-01-17T16:37:42.316Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/drip-drop-2c2c8/instances {}
+[info] i  functions: Loaded environment variables from .env. 
+[info] i  functions: preparing .firebase/drip-drop-2c2c8/functions directory for uploading... 
+[info] i  functions: packaged /Users/lev/code/drip-drop/.firebase/drip-drop-2c2c8/functions (137.58 MB) for uploading 
+[info] i  functions: ensuring required API run.googleapis.com is enabled... 
+[info] i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+[info] i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+[info] i  functions: ensuring required API storage.googleapis.com is enabled... 
+[info] i  functions: generating the service identity for pubsub.googleapis.com... 
+[debug] [2026-01-17T16:37:47.555Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:47.555Z] Checked if tokens are valid: true, expires at: 1768669760126
+[info] i  functions: generating the service identity for eventarc.googleapis.com... 
+[debug] [2026-01-17T16:37:47.555Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:47.555Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:47.555Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-01-17T16:37:47.555Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/pubsub.googleapis.com:generateServiceIdentity x-goog-quota-user=projects/92017673332
+[debug] [2026-01-17T16:37:47.555Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/pubsub.googleapis.com:generateServiceIdentity {}
+[debug] [2026-01-17T16:37:47.556Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-01-17T16:37:47.556Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/eventarc.googleapis.com:generateServiceIdentity x-goog-quota-user=projects/92017673332
+[debug] [2026-01-17T16:37:47.556Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/eventarc.googleapis.com:generateServiceIdentity {}
+[debug] [2026-01-17T16:37:48.051Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/eventarc.googleapis.com:generateServiceIdentity 200
+[debug] [2026-01-17T16:37:48.051Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-92017673332@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"103268183944791658175"}}
+[debug] [2026-01-17T16:37:48.051Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/pubsub.googleapis.com:generateServiceIdentity 200
+[debug] [2026-01-17T16:37:48.051Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/92017673332/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-92017673332@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"116439717364804596143"}}
+[debug] [2026-01-17T16:37:48.055Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.055Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.056Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 [none]
+[debug] [2026-01-17T16:37:48.305Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 200
+[debug] [2026-01-17T16:37:48.305Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/drip-drop-2c2c8 {"projectNumber":"92017673332","projectId":"drip-drop-2c2c8","lifecycleState":"ACTIVE","name":"drip-drop","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-01-14T02:33:45.305022Z"}
+[debug] [2026-01-17T16:37:48.306Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.306Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.306Z] >>> [apiv2][query] GET https://compute.googleapis.com/compute/v1/projects/92017673332 [none]
+[debug] [2026-01-17T16:37:48.478Z] <<< [apiv2][status] GET https://compute.googleapis.com/compute/v1/projects/92017673332 403
+[debug] [2026-01-17T16:37:48.478Z] <<< [apiv2][body] GET https://compute.googleapis.com/compute/v1/projects/92017673332 {"error":{"code":403,"message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"consumer":"projects/92017673332","containerInfo":"92017673332","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332","service":"compute.googleapis.com","serviceTitle":"Compute Engine API"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332"}]}]}}
+[debug] [2026-01-17T16:37:48.481Z] unable to look up default compute service account. Falling back to 92017673332-compute@developer.gserviceaccount.com. Error: {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":403,"message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","errors":[{"message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","domain":"usageLimits","reason":"accessNotConfigured","extendedHelp":"https://console.developers.google.com"}],"status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"consumer":"projects/92017673332","containerInfo":"92017673332","activationUrl":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332","service":"compute.googleapis.com","serviceTitle":"Compute Engine API"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332"}]}]}},"response":{"statusCode":403}},"exit":1,"message":"Request to https://compute.googleapis.com/compute/v1/projects/92017673332 had HTTP Error: 403, Compute Engine API has not been used in project 92017673332 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/compute.googleapis.com/overview?project=92017673332 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","status":403}
+[debug] [2026-01-17T16:37:48.485Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.486Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:48.487Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drip-drop-2c2c8/versions [none]
+[debug] [2026-01-17T16:37:48.487Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drip-drop-2c2c8/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase","firebase-web-framework":"next_ssr"}}
+[debug] [2026-01-17T16:37:49.074Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drip-drop-2c2c8/versions 200
+[debug] [2026-01-17T16:37:49.074Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/drip-drop-2c2c8/versions {"name":"projects/92017673332/sites/drip-drop-2c2c8/versions/b163780dd920ec16","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase","firebase-web-framework":"next_ssr"}}
+[debug] [2026-01-17T16:37:49.076Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:49.076Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:49.076Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/drip-drop-2c2c8/billingInfo [none]
+[debug] [2026-01-17T16:37:49.294Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/drip-drop-2c2c8/billingInfo 200
+[debug] [2026-01-17T16:37:49.294Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/drip-drop-2c2c8/billingInfo {"name":"projects/drip-drop-2c2c8/billingInfo","projectId":"drip-drop-2c2c8","billingAccountName":"billingAccounts/012B84-C10B2E-3DFC91","billingEnabled":true}
+[debug] [2026-01-17T16:37:49.297Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:49.297Z] Checked if tokens are valid: true, expires at: 1768669760126
+[debug] [2026-01-17T16:37:49.298Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/us-east1/functions:generateUploadUrl [none]
+[debug] [2026-01-17T16:37:49.579Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/us-east1/functions:generateUploadUrl 200
+[debug] [2026-01-17T16:37:49.579Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/drip-drop-2c2c8/locations/us-east1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/f48d1f34-911e-4520-a726-926b0e137e79.zip?GoogleAccessId=service-92017673332@gcf-admin-robot.iam.gserviceaccount.com&Expires=1768669669&Signature=lGhpvi5aaaAdktZnLnrll7Bqccugz%2Be3B9SpmIjys83E0guJ2dVxmy5l%2FvlXk2FJF6xUfjLp3RRsHGPH91CoYB5qkWju2iZfQjx74qt5VBkoHjf8mJMOZRvPQXpbqm0QI09%2BapYQTPBcQQiKBwLf97iOc%2Be9imzhDzZ0njNvmh2QFQGacK1ke%2FDjHlViywZz8%2BjpQfol2qqig8L9%2FOTynS5506NxbKkXHHM1WDp70JH%2FQIkHFLY%2FsqQUQWFRy4aPpUI7KdATI9djziCSYypL0kTEevZXsFCCHhfR5uXcmFU4Xp6ndw7MNfZrukNhtiLcTZWyrZSbMyHN6wS%2FuPsOwQ%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com","object":"f48d1f34-911e-4520-a726-926b0e137e79.zip"}}
+[debug] [2026-01-17T16:37:49.581Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/f48d1f34-911e-4520-a726-926b0e137e79.zip GoogleAccessId=service-92017673332%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1768669669&Signature=lGhpvi5aaaAdktZnLnrll7Bqccugz%2Be3B9SpmIjys83E0guJ2dVxmy5l%2FvlXk2FJF6xUfjLp3RRsHGPH91CoYB5qkWju2iZfQjx74qt5VBkoHjf8mJMOZRvPQXpbqm0QI09%2BapYQTPBcQQiKBwLf97iOc%2Be9imzhDzZ0njNvmh2QFQGacK1ke%2FDjHlViywZz8%2BjpQfol2qqig8L9%2FOTynS5506NxbKkXHHM1WDp70JH%2FQIkHFLY%2FsqQUQWFRy4aPpUI7KdATI9djziCSYypL0kTEevZXsFCCHhfR5uXcmFU4Xp6ndw7MNfZrukNhtiLcTZWyrZSbMyHN6wS%2FuPsOwQ%3D%3D
+[debug] [2026-01-17T16:37:49.582Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-92017673332.us-east1.cloudfunctions.appspot.com/f48d1f34-911e-4520-a726-926b0e137e79.zip [stream]

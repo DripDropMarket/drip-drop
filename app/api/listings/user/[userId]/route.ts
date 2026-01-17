@@ -10,7 +10,7 @@ export async function GET(
     const { userId } = await params;
     const db = getDB();
     const listingsRef = db.collection("listings");
-    const q = listingsRef.where("userId", "==", userId).orderBy("createdAt", "desc");
+    const q = listingsRef.where("userId", "==", userId);
     const querySnapshot = await q.get();
     
     const listings: ListingData[] = [];
@@ -25,6 +25,9 @@ export async function GET(
         createdAt: data.createdAt as ListingData["createdAt"],
       });
     });
+    
+    // Sort in memory instead of requiring a Firestore index
+    listings.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
     
     return NextResponse.json(listings);
   } catch (error) {

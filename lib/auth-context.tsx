@@ -67,9 +67,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async (): Promise<void> => {
-    if (!auth) throw new Error("Firebase not configured");
-    const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
-    await signInWithPopup(auth, new GoogleAuthProvider());
+    if (!auth) {
+      console.error("Firebase auth not initialized");
+      throw new Error("Firebase not configured. Please refresh the page.");
+    }
+    try {
+      const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (error: any) {
+      console.error("Sign in error:", error);
+      if (error.code === "auth/popup-blocked") {
+        throw new Error("Popup was blocked. Please allow popups for this site.");
+      }
+      throw error;
+    }
   };
 
   const signOut = async () => {

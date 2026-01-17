@@ -4,14 +4,18 @@ export async function authenticatedFetch(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  if (!auth || !auth.currentUser) {
-    throw new Error("User must be authenticated to perform this action");
+  if (!auth) {
+    throw new Error("Firebase auth not initialized");
   }
 
   let token: string;
 
   try {
-    token = await auth.currentUser.getIdToken();
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("User must be authenticated to perform this action");
+    }
+    token = await currentUser.getIdToken();
   } catch (error) {
     console.error("Error getting ID token:", error);
     throw new Error("Failed to get authentication token");

@@ -1,8 +1,18 @@
-import { ListingData, CreateListingInput, UpdateListingInput } from "@/app/lib/types";
+import { ListingData, CreateListingInput, UpdateListingInput, FilterOptions } from "@/app/lib/types";
 import { authenticatedFetch } from "./helpers";
 
-export async function getListings(): Promise<ListingData[]> {
-  const response = await fetch("/api/listings", {
+export async function getListings(filters?: FilterOptions): Promise<ListingData[]> {
+  const params = new URLSearchParams();
+  
+  if (filters?.type) params.set("type", filters.type);
+  if (filters?.clothingType) params.set("clothingType", filters.clothingType);
+  if (filters?.minPrice !== undefined) params.set("minPrice", filters.minPrice.toString());
+  if (filters?.maxPrice !== undefined) params.set("maxPrice", filters.maxPrice.toString());
+  if (filters?.search) params.set("search", filters.search);
+  
+  const url = `/api/listings${params.toString() ? `?${params.toString()}` : ""}`;
+  
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

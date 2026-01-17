@@ -21,9 +21,12 @@ export async function GET(
       id: listingSnap.id,
       title: data.title,
       description: data.description,
+      price: data.price || 0,
       type: data.type as ListingType,
+      clothingType: data.clothingType,
       userId: data.userId,
       createdAt: data.createdAt,
+      imageUrls: data.imageUrls,
     });
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -72,6 +75,13 @@ export async function PUT(
       updateData.description = body.description;
     }
     
+    if (body.price !== undefined) {
+      if (body.price < 0) {
+        return NextResponse.json({ error: "Price cannot be negative" }, { status: 400 });
+      }
+      updateData.price = body.price;
+    }
+    
     if (body.type !== undefined) {
       const validTypes: ListingType[] = ["clothes", "textbooks", "tech", "furniture", "tickets", "services", "other"];
       if (!validTypes.includes(body.type)) {
@@ -80,11 +90,16 @@ export async function PUT(
       updateData.type = body.type;
     }
     
+    if (body.clothingType !== undefined) {
+      updateData.clothingType = body.clothingType;
+    }
+    
     await listingRef.update(updateData);
     
     return NextResponse.json({
       id,
       ...listingData,
+      price: listingData.price || 0,
       ...updateData,
     });
     

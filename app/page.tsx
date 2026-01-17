@@ -35,7 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/profile");
+      router.push("/listings");
     }
   }, [user, loading, router]);
 
@@ -82,7 +82,7 @@ export default function Home() {
                 Get Started
               </Link>
               <Link
-                href="/login"
+                href="/listings"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-8 text-base font-medium transition-colors hover:bg-muted"
               >
                 Browse Items
@@ -97,7 +97,7 @@ export default function Home() {
               {categories.map((category) => (
                 <Link
                   key={category.name}
-                  href="/login"
+                  href="/listings"
                   className="group flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center transition-all hover:border-primary/50 hover:shadow-lg"
                 >
                   <span className="text-5xl mb-4">{category.icon}</span>

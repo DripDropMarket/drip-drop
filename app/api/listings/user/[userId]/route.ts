@@ -20,9 +20,15 @@ export async function GET(
         id: doc.id,
         title: data.title,
         description: data.description,
-        type: data.type as ListingData["type"],
+        price: data.price || 0,
+        type: data.type,
+        clothingType: data.clothingType,
         userId: data.userId,
-        createdAt: data.createdAt as ListingData["createdAt"],
+        createdAt: {
+          seconds: data.createdAt?.seconds || 0,
+          nanoseconds: data.createdAt?.nanoseconds || 0,
+        },
+        imageUrls: data.imageUrls,
       });
     });
     

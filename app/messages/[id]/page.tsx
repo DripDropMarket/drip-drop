@@ -141,9 +141,12 @@ export default function ConversationPage() {
                   ? `${conversation.otherUser.firstName} ${conversation.otherUser.lastName}`
                   : "Unknown User"}
               </p>
-              <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+              <Link
+                href={`/listings/${conversation.listingId}`}
+                className="text-xs text-primary hover:underline truncate max-w-[200px] block"
+              >
                 re: {conversation.listingTitle}
-              </p>
+              </Link>
             </div>
           </div>
         </div>

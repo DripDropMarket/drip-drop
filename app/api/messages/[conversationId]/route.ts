@@ -25,12 +25,10 @@ export async function GET(
     }
     
     const messagesRef = db.collection("messages");
-    const q = messagesRef
-      .where("conversationId", "==", conversationId)
-      .orderBy("createdAt", "asc");
+    const q = messagesRef.where("conversationId", "==", conversationId);
     const querySnapshot = await q.get();
     
-    const messages: any[] = [];
+    let messages: any[] = [];
     for (const doc of querySnapshot.docs) {
       const data = doc.data();
       
@@ -53,6 +51,8 @@ export async function GET(
         senderFirstName,
       });
     }
+    
+    messages.sort((a, b) => a.createdAt.seconds - b.createdAt.seconds);
     
     const batch = db.batch();
     querySnapshot.docs.forEach((doc) => {

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/lib/auth-context";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
 
   const isActive = (path: string) => {
     if (path === "/listings") {
@@ -13,7 +15,7 @@ export default function Sidebar() {
     return pathname.startsWith(path);
   };
 
-  if (pathname === "/login" || pathname === "/" || pathname.startsWith("/api/")) {
+  if (pathname === "/" || pathname.startsWith("/api/")) {
     return null;
   }
 
@@ -76,24 +78,45 @@ export default function Sidebar() {
           </svg>
           <span>Messages</span>
         </Link>
-        <Link
-          href="/profile"
-          className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-            pathname === "/profile"
-              ? "bg-primary text-white"
-              : "text-muted-foreground hover:bg-muted hover:text-primary"
-          }`}
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-          <span>Profile</span>
-        </Link>
+        {user ? (
+          <Link
+            href="/profile"
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+              pathname === "/profile"
+                ? "bg-primary text-white"
+                : "text-muted-foreground hover:bg-muted hover:text-primary"
+            }`}
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            <span>Profile</span>
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+              pathname === "/login"
+                ? "bg-primary text-white"
+                : "text-muted-foreground hover:bg-muted hover:text-primary"
+            }`}
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+              />
+            </svg>
+            <span>Sign In</span>
+          </Link>
+        )}
       </nav>
     </aside>
   );

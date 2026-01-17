@@ -125,13 +125,16 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-background pb-20">
         <main className="container mx-auto max-w-2xl px-4 py-8">
           <h1 className="mb-8 text-3xl font-bold">Profile</h1>
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
-            <p className="mb-4 text-lg text-muted-foreground">
+          <div className="rounded-2xl border-2 border-primary bg-primary/5 p-12 text-center">
+            <svg className="mx-auto h-16 w-16 text-primary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <p className="mb-6 text-xl font-medium text-foreground">
               Sign in to view your profile
             </p>
             <Link
               href="/login"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white shadow-lg transition-all hover:bg-primary-hover hover:shadow-xl"
             >
               Sign In
             </Link>

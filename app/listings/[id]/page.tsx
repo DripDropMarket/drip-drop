@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
-import { getListing, updateListing, deleteListing } from "@/views/listings";
-import { ListingData, ListingType } from "@/lib/types";
+import { useAuth } from "@/app/lib/auth-context";
+import { getListing, updateListing, deleteListing } from "@/app/views/listings";
+import { ListingData, ListingType } from "@/app/lib/types";
 
 const typeLabels: Record<ListingType, string> = {
   clothes: "Clothes",

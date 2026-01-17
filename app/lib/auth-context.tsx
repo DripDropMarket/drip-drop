@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { AuthContextType } from "./types";
-import { initFirebase, getFirebaseAuth, getFirebaseDb } from "@/lib/firebase-runtime";
+import { initFirebase, getFirebaseAuth, getFirebaseDb } from "@/app/lib/firebase-runtime";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

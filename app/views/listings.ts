@@ -1,4 +1,4 @@
-import { ListingData, CreateListingInput, UpdateListingInput } from "@/lib/types";
+import { ListingData, CreateListingInput, UpdateListingInput } from "@/app/lib/types";
 import { authenticatedFetch } from "./helpers";
 
 export async function getListings(): Promise<ListingData[]> {

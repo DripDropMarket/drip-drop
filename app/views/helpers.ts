@@ -1,4 +1,4 @@
-import { auth } from "@/lib/firebase";
+import { auth } from "@/app/lib/firebase";
 
 export async function authenticatedFetch(
   endpoint: string,

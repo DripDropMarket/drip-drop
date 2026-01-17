@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "../../../helpers";
-import { ListingData } from "@/lib/types";
+import { ListingData } from "@/app/lib/types";
 
 export async function GET(
   request: NextRequest,

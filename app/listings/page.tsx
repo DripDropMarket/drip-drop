@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getListings } from "@/views/listings";
-import { ListingData, ListingType } from "@/lib/types";
+import { getListings } from "@/app/views/listings";
+import { ListingData, ListingType } from "@/app/lib/types";
 
 const typeLabels: Record<ListingType, string> = {
   clothes: "Clothes",

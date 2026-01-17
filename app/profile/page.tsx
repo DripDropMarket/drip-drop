@@ -1,13 +1,13 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/app/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { UserData, ListingData } from "@/lib/types";
-import { getUserListings, deleteListing } from "@/views/listings";
+import { db } from "@/app/lib/firebase";
+import { UserData, ListingData } from "@/app/lib/types";
+import { getUserListings, deleteListing } from "@/app/views/listings";
 import Link from "next/link";
 
 const typeColors: Record<string, string> = {

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc, query, orderBy } from "firebase/firestore";
-import { verifyAuthToken } from "../../../api/helpers";
+import { getDB, verifyAuthToken } from "../../../api/helpers";
 import { ListingType, CreateListingInput, ListingData } from "@/lib/types";
 
 export async function GET() {
   try {
-    const listingsRef = collection(db, "listings");
-    const q = query(listingsRef, orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
+    const db = getDB();
+    const listingsRef = db.collection("listings");
+    const q = listingsRef.orderBy("createdAt", "desc");
+    const querySnapshot = await q.get();
     
     const listings: ListingData[] = [];
     querySnapshot.forEach((doc) => {
@@ -55,8 +54,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const listingsRef = collection(db, "listings");
-    const docRef = await addDoc(listingsRef, {
+    const db = getDB();
+    const listingsRef = db.collection("listings");
+    const docRef = await listingsRef.add({
       title: body.title,
       description: body.description,
       type: body.type,

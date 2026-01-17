@@ -1,5 +1,0 @@
-env:
-  - variable: FIREBASE_CLIENT_EMAIL
-    secret: projects/drip-drop-2c2c8/secrets/FIREBASE_CLIENT_EMAIL/versions/latest
-  - variable: FIREBASE_PRIVATE_KEY
-    secret: projects/drip-drop-2c2c8/secrets/FIREBASE_PRIVATE_KEY/versions/latest

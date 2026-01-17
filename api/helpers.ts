@@ -1,8 +1,10 @@
 import { NextRequest } from "next/server";
 import admin from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 
 let adminAuth: admin.auth.Auth | null = null;
+let db: admin.firestore.Firestore | null = null;
 
 function getAdminAuth(): admin.auth.Auth {
   if (adminAuth) return adminAuth;
@@ -28,6 +30,12 @@ function getAdminAuth(): admin.auth.Auth {
   }
   adminAuth = admin.auth();
   return adminAuth;
+}
+
+export function getDB(): admin.firestore.Firestore {
+  if (db) return db;
+  db = getFirestore();
+  return db;
 }
 
 export async function verifyAuthToken(request: NextRequest): Promise<DecodedIdToken> {

@@ -26,6 +26,7 @@ type TabType = "listings" | "saved";
 export default function ProfilePage() {
   const { user, signOut, loading } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [schoolData, setSchoolData] = useState<{ name: string; state: string } | null>(null);
   const [listings, setListings] = useState<ListingData[]>([]);
   const [savedListings, setSavedListings] = useState<ListingData[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
@@ -40,7 +41,19 @@ export default function ProfilePage() {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-          setUserData(userSnap.data() as UserData);
+          const data = userSnap.data() as UserData;
+          setUserData(data);
+
+          if (data.schoolId) {
+            const schoolSnap = await getDoc(doc(db, "schools", data.schoolId));
+            if (schoolSnap.exists()) {
+              const school = schoolSnap.data();
+              setSchoolData({
+                name: school.name,
+                state: school.state,
+              });
+            }
+          }
         }
       }
     }
@@ -164,6 +177,11 @@ export default function ProfilePage() {
                 {userData?.firstName} {userData?.lastName}
               </p>
               <p className="text-sm text-muted-foreground">{userData?.email || user.email}</p>
+              {schoolData && (
+                <p className="text-sm text-primary mt-1">
+                  🎓 {schoolData.name} ({schoolData.state})
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDB, verifyAuthToken } from "../helpers";
+import { getDB, verifyAuthToken, getAdminAuth } from "../helpers";
 import { ListingType, CreateListingInput, ListingData, ClothingType } from "@/app/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -10,14 +10,66 @@ export async function GET(request: NextRequest) {
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const search = searchParams.get("search");
+    const scope = searchParams.get("scope") as "school" | "state" | "all" | null;
 
     const db = getDB();
     const listingsRef = db.collection("listings");
-    const q = listingsRef.orderBy("createdAt", "desc");
-    const querySnapshot = await q.get();
+
+    let queryRef = listingsRef as any;
+    let hasScopeFilter = false;
+
+    if (scope && scope !== "all") {
+      const authHeader = request.headers.get("Authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        try {
+          const firebaseAuth = getAdminAuth();
+          const token = authHeader.split(" ")[1];
+          const decodedToken = await firebaseAuth.verifyIdToken(token);
+          const userId = decodedToken.uid;
+
+          const userDoc = await db.collection("users").doc(userId).get();
+          const userData = userDoc.data();
+          const userSchoolId = userData?.schoolId;
+
+          if (userSchoolId) {
+            if (scope === "school") {
+              queryRef = listingsRef.where("schoolId", "==", userSchoolId);
+              hasScopeFilter = true;
+            } else if (scope === "state") {
+              const schoolDoc = await db.collection("schools").doc(userSchoolId).get();
+              const schoolData = schoolDoc.data();
+              if (schoolData) {
+                const stateSchoolsSnapshot = await db.collection("schools")
+                  .where("state", "==", schoolData.state)
+                  .get();
+                
+                const stateSchoolIds = stateSchoolsSnapshot.docs.map((s) => s.id);
+                if (stateSchoolIds.length > 0) {
+                  const maxInClause = 10;
+                  if (stateSchoolIds.length <= maxInClause) {
+                    queryRef = listingsRef.where("schoolId", "in", stateSchoolIds);
+                    hasScopeFilter = true;
+                  } else {
+                    return NextResponse.json(
+                      { error: "Too many schools in this state to filter. Please try again later." },
+                      { status: 400 }
+                    );
+                  }
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error filtering by scope:", err);
+          return NextResponse.json({ error: "Failed to apply scope filter" }, { status: 400 });
+        }
+      }
+    }
+
+    const querySnapshot = await queryRef.orderBy("createdAt", "desc").get();
     
     let listings: ListingData[] = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach((doc: any) => {
       const data = doc.data();
       listings.push({
         id: doc.id,
@@ -27,6 +79,7 @@ export async function GET(request: NextRequest) {
         type: data.type,
         clothingType: data.clothingType,
         userId: data.userId,
+        schoolId: data.schoolId,
         createdAt: {
           seconds: data.createdAt?.seconds || 0,
           nanoseconds: data.createdAt?.nanoseconds || 0,
@@ -94,12 +147,17 @@ export async function POST(request: NextRequest) {
     const db = getDB();
     const listingsRef = db.collection("listings");
     
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userData = userDoc.data();
+    const schoolId = userData?.schoolId;
+    
     const listingData: Record<string, unknown> = {
       title: body.title,
       description: body.description,
       price: body.price,
       type: body.type,
       userId: userId,
+      schoolId: schoolId || null,
       createdAt: new Date(),
       imageUrls: body.imageUrls || [],
     };
@@ -117,6 +175,7 @@ export async function POST(request: NextRequest) {
       price: body.price,
       type: body.type,
       userId: userId,
+      schoolId: schoolId || null,
       createdAt: {
         seconds: Date.now() / 1000,
         nanoseconds: 0,

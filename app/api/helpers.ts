@@ -48,6 +48,8 @@ function getAdminAuth(): admin.auth.Auth {
   return adminAuth;
 }
 
+export { getAdminAuth };
+
 export function getDB(): admin.firestore.Firestore {
   if (db) return db;
   

@@ -86,7 +86,8 @@ export default function ListingDetailPage() {
   const [showDMModal, setShowDMModal] = useState(false);
   const [dmMessage, setDmMessage] = useState("");
   const [sendingDM, setSendingDM] = useState(false);
-  const [sellerInfo, setSellerInfo] = useState<{ firstName: string; lastName: string; profilePicture: string } | null>(null);
+  const [sellerInfo, setSellerInfo] = useState<{ firstName: string; lastName: string; profilePicture: string; schoolId?: string } | null>(null);
+  const [sellerSchool, setSellerSchool] = useState<{ name: string; state: string } | null>(null);
   const [relatedListings, setRelatedListings] = useState<ListingData[]>([]);
   const [existingConversationId, setExistingConversationId] = useState<string | null>(null);
 
@@ -112,7 +113,19 @@ export default function ListingDetailPage() {
               firstName: userData.firstName,
               lastName: userData.lastName,
               profilePicture: userData.profilePicture,
+              schoolId: userData.schoolId,
             });
+
+            if (userData.schoolId) {
+              const schoolSnap = await getDoc(doc(db, "schools", userData.schoolId));
+              if (schoolSnap.exists()) {
+                const schoolData = schoolSnap.data();
+                setSellerSchool({
+                  name: schoolData.name,
+                  state: schoolData.state,
+                });
+              }
+            }
           }
         }
       } catch (err) {
@@ -458,7 +471,10 @@ export default function ListingDetailPage() {
             <div className="rounded-xl border border-border bg-muted/30 p-6">
               <h2 className="mb-4 text-lg font-semibold">About the Seller</h2>
               {sellerInfo ? (
-                <div className="flex items-center gap-4">
+                <Link
+                  href={`/users/${listing.userId}`}
+                  className="flex items-center gap-4 hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
+                >
                   {sellerInfo.profilePicture && (
                     <img
                       src={sellerInfo.profilePicture}
@@ -466,12 +482,20 @@ export default function ListingDetailPage() {
                       className="h-12 w-12 rounded-full object-cover"
                     />
                   )}
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium">
                       {sellerInfo.firstName} {sellerInfo.lastName}
                     </p>
+                    {sellerSchool && (
+                      <p className="text-sm text-muted-foreground">
+                        🎓 {sellerSchool.name} ({sellerSchool.state})
+                      </p>
+                    )}
                   </div>
-                </div>
+                  <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               ) : (
                 <p className="text-sm text-muted-foreground">User ID: {listing.userId}</p>
               )}

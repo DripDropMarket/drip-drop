@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getListings } from "@/app/views/listings";
-import { ListingData, ListingType, ClothingType } from "@/app/lib/types";
+import { ListingData, ListingType, ClothingType, FilterOptions } from "@/app/lib/types";
+import { useAuth } from "@/app/lib/auth-context";
+
+type ScopeType = "school" | "state" | "all";
 
 const categories: { name: string; value: ListingType | null; icon: string }[] = [
   { name: "All", value: null, icon: "📋" },
@@ -24,6 +27,12 @@ const clothingTypes: { name: string; value: ClothingType | null }[] = [
   { name: "Footwear", value: "footwear" },
   { name: "Accessories", value: "accessories" },
   { name: "Dresses", value: "dresses" },
+];
+
+const scopeOptions: { name: string; value: ScopeType; icon: string }[] = [
+  { name: "My School", value: "school", icon: "🎓" },
+  { name: "My State", value: "state", icon: "🗺️" },
+  { name: "All Listings", value: "all", icon: "🌍" },
 ];
 
 const typeLabels: Record<ListingType, string> = {
@@ -47,6 +56,7 @@ const typeColors: Record<ListingType, string> = {
 };
 
 export default function ListingsPage() {
+  const { user, loading: authLoading } = useAuth();
   const [listings, setListings] = useState<ListingData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<ListingType | null>(null);
@@ -55,17 +65,14 @@ export default function ListingsPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [scope, setScope] = useState<ScopeType>("school");
 
   useEffect(() => {
     async function fetchListings() {
       try {
-        const filters: {
-          type?: ListingType;
-          clothingType?: ClothingType;
-          minPrice?: number;
-          maxPrice?: number;
-          search?: string;
-        } = {};
+        const filters: FilterOptions = {
+          scope: scope,
+        };
 
         if (selectedCategory) filters.type = selectedCategory;
         if (selectedClothingType) filters.clothingType = selectedClothingType;
@@ -81,8 +88,11 @@ export default function ListingsPage() {
         setLoading(false);
       }
     }
-    fetchListings();
-  }, [selectedCategory, selectedClothingType, minPrice, maxPrice, searchQuery]);
+
+    if (!authLoading) {
+      fetchListings();
+    }
+  }, [selectedCategory, selectedClothingType, minPrice, maxPrice, searchQuery, scope, authLoading]);
 
   function clearFilters() {
     setSelectedCategory(null);
@@ -94,7 +104,7 @@ export default function ListingsPage() {
 
   const hasActiveFilters = selectedCategory || selectedClothingType || minPrice || maxPrice || searchQuery;
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center bg-background pb-20">
         <p className="text-muted-foreground">Loading listings...</p>
@@ -123,6 +133,26 @@ export default function ListingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
+
+          {user && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">View:</span>
+              {scopeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setScope(option.value)}
+                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    scope === option.value
+                      ? "bg-primary text-white"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <span>{option.icon}</span>
+                  <span>{option.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((category) => (

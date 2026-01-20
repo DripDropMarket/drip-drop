@@ -11,6 +11,7 @@ export interface Listing {
   type: ListingType;
   clothingType?: ClothingType;
   userId: string;
+  schoolId?: string;
   createdAt: Timestamp;
   imageUrls?: string[];
 }
@@ -23,6 +24,7 @@ export interface ListingData {
   type: ListingType;
   clothingType?: ClothingType;
   userId: string;
+  schoolId?: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -119,6 +121,8 @@ export interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  needsSchoolSelection: boolean;
+  refreshUserData: () => Promise<void>;
 }
 
 export interface UserData {
@@ -131,6 +135,7 @@ export interface UserData {
     seconds: number;
     nanoseconds: number;
   };
+  schoolId?: string;
 }
 
 export interface FilterOptions {
@@ -139,4 +144,46 @@ export interface FilterOptions {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
+  scope?: "school" | "state" | "all";
+}
+
+export type USState =
+  | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA"
+  | "HI" | "ID" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD"
+  | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ"
+  | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "OR" | "PA" | "RI" | "SC"
+  | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY" | "DC";
+
+export interface School {
+  id: string;
+  name: string;
+  state: USState;
+  memberCount: number;
+  createdAt: Timestamp;
+}
+
+export interface SchoolData {
+  id: string;
+  name: string;
+  state: USState;
+  memberCount: number;
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
+
+export interface CreateSchoolInput {
+  name: string;
+  state: USState;
+}
+
+export interface User {
+  uid: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePicture: string;
+  createdAt: Timestamp;
+  schoolId?: string;
 }

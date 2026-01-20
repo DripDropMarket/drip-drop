@@ -4,12 +4,34 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { AuthContextType } from "./types";
 import { initFirebase, getFirebaseAuth, getFirebaseDb } from "@/app/lib/firebase-runtime";
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthContextValue extends AuthContextType {
+  needsSchoolSelection: boolean;
+  refreshUserData: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsSchoolSelection, setNeedsSchoolSelection] = useState(false);
+
+  async function checkSchoolAndRefresh() {
+    if (user) {
+      const { doc, getDoc } = await import("firebase/firestore");
+      const db = getFirebaseDb();
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        setNeedsSchoolSelection(!userData?.schoolId);
+      } else {
+        setNeedsSchoolSelection(true);
+      }
+    }
+  }
 
   useEffect(() => {
     let unsubscribe: any = null;
@@ -37,7 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 profilePicture: user.photoURL || "",
                 createdAt: Timestamp.now(),
               });
+              setNeedsSchoolSelection(true);
+            } else {
+              const userData = userSnap.data();
+              setNeedsSchoolSelection(!userData?.schoolId);
             }
+          } else {
+            setNeedsSchoolSelection(false);
           }
           setLoading(false);
         });
@@ -76,10 +104,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = getFirebaseAuth();
     const { signOut: firebaseSignOut } = await import("firebase/auth");
     await firebaseSignOut(auth);
+    setNeedsSchoolSelection(false);
+  };
+
+  const refreshUserData = async () => {
+    await checkSchoolAndRefresh();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, needsSchoolSelection, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );

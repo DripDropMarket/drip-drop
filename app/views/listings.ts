@@ -9,13 +9,20 @@ export async function getListings(filters?: FilterOptions): Promise<ListingData[
   if (filters?.minPrice !== undefined) params.set("minPrice", filters.minPrice.toString());
   if (filters?.maxPrice !== undefined) params.set("maxPrice", filters.maxPrice.toString());
   if (filters?.search) params.set("search", filters.search);
+  if (filters?.scope) params.set("scope", filters.scope);
   
   const url = `/api/listings${params.toString() ? `?${params.toString()}` : ""}`;
   
+  const token = await import("@/app/lib/firebase").then((firebase) => {
+    const firebaseAuth = firebase.auth;
+    return firebaseAuth?.currentUser?.getIdToken();
+  });
+
   const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
     },
   });
 

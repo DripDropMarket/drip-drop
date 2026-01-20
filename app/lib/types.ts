@@ -228,6 +228,7 @@ export interface School {
   state: USState;
   memberCount: number;
   createdAt: Timestamp;
+  adminIds: string[];
 }
 
 export interface SchoolData {
@@ -239,11 +240,22 @@ export interface SchoolData {
     seconds: number;
     nanoseconds: number;
   };
+  adminIds: string[];
 }
 
 export interface CreateSchoolInput {
   name: string;
   state: USState;
+}
+
+export interface UpdateSchoolInput {
+  name?: string;
+  state?: USState;
+}
+
+export interface UpdateMemberInput {
+  userId: string;
+  action: "remove";
 }
 
 export interface User {

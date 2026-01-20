@@ -22,6 +22,7 @@ export async function GET() {
           seconds: data.createdAt?.seconds || 0,
           nanoseconds: data.createdAt?.nanoseconds || 0,
         },
+        adminIds: data.adminIds || [],
       });
     });
 
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
       state: body.state,
       memberCount: 1,
       createdAt: admin.firestore.Timestamp.now(),
+      adminIds: [decodedToken.uid],
     };
 
     const docRef = await schoolsRef.add(schoolData);
@@ -92,6 +94,7 @@ export async function POST(request: NextRequest) {
         seconds: Date.now() / 1000,
         nanoseconds: 0,
       },
+      adminIds: schoolData.adminIds,
     }, { status: 201 });
     
   } catch (error) {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
-import { UserData, ListingData } from "@/app/lib/types";
+import { UserData, ListingData, formatDate } from "@/app/lib/types";
 import { getUserListings, deleteListing } from "@/app/views/listings";
 import { getSavedListings, toggleSavedListing } from "@/app/views/saved";
 import { getListings } from "@/app/views/listings";
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}
+                      {formatDate(listing.createdAt)}
                     </span>
                   </div>
                 ))}

@@ -158,6 +158,44 @@ export type USState =
   | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "OR" | "PA" | "RI" | "SC"
   | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY" | "DC";
 
+export interface TimestampData {
+  seconds: number;
+  nanoseconds: number;
+}
+
+export function formatDate(timestamp: TimestampData | undefined | null): string {
+  if (!timestamp || !timestamp.seconds) {
+    return "";
+  }
+  const date = new Date(timestamp.seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleDateString();
+}
+
+export function formatDateTime(timestamp: TimestampData | undefined | null): string {
+  if (!timestamp || !timestamp.seconds) {
+    return "";
+  }
+  const date = new Date(timestamp.seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleString();
+}
+
+export function formatTime(timestamp: TimestampData | undefined | null): string {
+  if (!timestamp || !timestamp.seconds) {
+    return "";
+  }
+  const date = new Date(timestamp.seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export interface School {
   id: string;
   name: string;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getListings } from "@/app/views/listings";
-import { ListingData, ListingType, ClothingType, FilterOptions } from "@/app/lib/types";
+import { ListingData, ListingType, ClothingType, FilterOptions, formatDate } from "@/app/lib/types";
 import { useAuth } from "@/app/lib/auth-context";
 
 type ScopeType = "school" | "state" | "all";
@@ -310,7 +310,7 @@ export default function ListingsPage() {
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}
+                      {formatDate(listing.createdAt)}
                     </span>
                   </div>
                 </div>

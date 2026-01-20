@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/lib/auth-context";
 import { getConversation, getMessages, sendMessage } from "@/app/views/messaging";
-import { ConversationData, MessageData } from "@/app/lib/types";
+import { ConversationData, MessageData, formatTime } from "@/app/lib/types";
 import { uploadImage } from "@/app/lib/image-upload";
 
 export default function ConversationPage() {
@@ -202,10 +202,7 @@ export default function ConversationPage() {
                     />
                   )}
                   <p className={`mt-1 text-xs ${isOwnMessage ? "text-white/70" : "text-muted-foreground"}`}>
-                    {new Date(message.createdAt.seconds * 1000).toLocaleTimeString([], {
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
+                    {formatTime(message.createdAt)}
                   </p>
                 </div>
               </div>

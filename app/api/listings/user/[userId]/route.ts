@@ -1,6 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "../../../helpers";
-import { ListingData } from "@/app/lib/types";
+import { ListingData, TimestampData } from "@/app/lib/types";
+
+function extractTimestamp(createdAt: any): TimestampData {
+  if (!createdAt) {
+    return { seconds: 0, nanoseconds: 0 };
+  }
+  
+  if (typeof createdAt === 'object') {
+    if ('seconds' in createdAt && 'nanoseconds' in createdAt) {
+      return {
+        seconds: createdAt.seconds,
+        nanoseconds: createdAt.nanoseconds,
+      };
+    }
+    if ('_seconds' in createdAt && '_nanoseconds' in createdAt) {
+      return {
+        seconds: createdAt._seconds,
+        nanoseconds: createdAt._nanoseconds,
+      };
+    }
+    if (createdAt instanceof Date || typeof createdAt.getTime === 'function') {
+      const time = createdAt.getTime();
+      return {
+        seconds: Math.floor(time / 1000),
+        nanoseconds: 0,
+      };
+    }
+  }
+  
+  if (typeof createdAt === 'number') {
+    return {
+      seconds: createdAt,
+      nanoseconds: 0,
+    };
+  }
+  
+  return { seconds: 0, nanoseconds: 0 };
+}
 
 export async function GET(
   request: NextRequest,
@@ -24,15 +61,13 @@ export async function GET(
         type: data.type,
         clothingType: data.clothingType,
         userId: data.userId,
-        createdAt: {
-          seconds: data.createdAt?.seconds || 0,
-          nanoseconds: data.createdAt?.nanoseconds || 0,
-        },
+        schoolId: data.schoolId,
+        isPrivate: data.isPrivate || false,
+        createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
       });
     });
     
-    // Sort in memory instead of requiring a Firestore index
     listings.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
     
     return NextResponse.json(listings);

@@ -3,9 +3,10 @@
 import { useAuth } from "@/app/lib/auth-context";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
-import { UserData, ListingData } from "@/app/lib/types";
+import { UserData, ListingData, formatDate } from "@/app/lib/types";
 import { getUserListings, deleteListing } from "@/app/views/listings";
 import { getSavedListings, toggleSavedListing } from "@/app/views/saved";
 import { getListings } from "@/app/views/listings";
@@ -25,6 +26,7 @@ type TabType = "listings" | "saved";
 
 export default function ProfilePage() {
   const { user, signOut, loading } = useAuth();
+  const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [schoolData, setSchoolData] = useState<{ name: string; state: string } | null>(null);
   const [listings, setListings] = useState<ListingData[]>([]);
@@ -177,10 +179,17 @@ export default function ProfilePage() {
                 {userData?.firstName} {userData?.lastName}
               </p>
               <p className="text-sm text-muted-foreground">{userData?.email || user.email}</p>
-              {schoolData && (
-                <p className="text-sm text-primary mt-1">
-                  🎓 {schoolData.name} ({schoolData.state})
-                </p>
+              {schoolData && userData?.schoolId && (
+                <Link
+                  href={`/schools/${userData.schoolId}`}
+                  className="inline-flex items-center gap-1 text-sm text-primary mt-1 hover:underline"
+                >
+                  <span>🎓</span>
+                  <span>{schoolData.name} ({schoolData.state})</span>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </Link>
               )}
             </div>
           </div>
@@ -240,10 +249,26 @@ export default function ProfilePage() {
             ) : (
               <div className="space-y-3">
                 {listings.map((listing) => (
-                  <div
+                  <Link
                     key={listing.id}
+                    href={`/listings/${listing.id}`}
                     className="group relative flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50"
                   >
+                    <div className="h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden">
+                      {listing.imageUrls && listing.imageUrls.length > 0 ? (
+                        <img
+                          src={listing.imageUrls[0]}
+                          alt={listing.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="mb-2 flex items-center gap-2">
                         <span
@@ -265,26 +290,31 @@ export default function ProfilePage() {
                       <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
                         {listing.description}
                       </p>
-                      <div className="flex items-center gap-3">
-                        <Link
-                          href={`/listings/${listing.id}`}
-                          className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-                        >
-                          View
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteListing(listing.id)}
-                          disabled={deletingId === listing.id}
-                          className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
-                        >
-                          {deletingId === listing.id ? "..." : "Delete"}
-                        </button>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(listing.createdAt)}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => router.push(`/listings/${listing.id}`)}
+                            className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteListing(listing.id);
+                            }}
+                            disabled={deletingId === listing.id}
+                            className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+                          >
+                            {deletingId === listing.id ? "..." : "Delete"}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}
-                    </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -319,6 +349,21 @@ export default function ProfilePage() {
                     href={`/listings/${listing.id}`}
                     className="group flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50"
                   >
+                    <div className="h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden">
+                      {listing.imageUrls && listing.imageUrls.length > 0 ? (
+                        <img
+                          src={listing.imageUrls[0]}
+                          alt={listing.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="mb-2 flex items-center gap-2">
                         <span

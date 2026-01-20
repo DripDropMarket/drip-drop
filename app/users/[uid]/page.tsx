@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
 import { getUserListings } from "@/app/views/listings";
-import { ListingData } from "@/app/lib/types";
+import { ListingData, formatDate } from "@/app/lib/types";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 
@@ -185,7 +185,7 @@ export default function UserListingsPage() {
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}
+                      {formatDate(listing.createdAt)}
                     </span>
                   </div>
                 </div>

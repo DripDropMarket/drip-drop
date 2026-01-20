@@ -7,7 +7,7 @@ import { useAuth } from "@/app/lib/auth-context";
 import { getListing, updateListing, deleteListing, getListings } from "@/app/views/listings";
 import { toggleSavedListing, getSavedListings } from "@/app/views/saved";
 import { createConversation } from "@/app/views/messaging";
-import { ListingData, ListingType, ClothingType } from "@/app/lib/types";
+import { ListingData, ListingType, ClothingType, formatDate } from "@/app/lib/types";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import ImageUpload from "@/app/components/image-upload";
@@ -79,6 +79,7 @@ export default function ListingDetailPage() {
   const [editType, setEditType] = useState<ListingType>("other");
   const [editClothingType, setEditClothingType] = useState<ClothingType | undefined>(undefined);
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
+  const [editIsPrivate, setEditIsPrivate] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -104,6 +105,7 @@ export default function ListingDetailPage() {
         setEditType(data.type);
         setEditClothingType(data.clothingType);
         setEditImageUrls(data.imageUrls || []);
+        setEditIsPrivate(data.isPrivate !== false);
 
         if (db) {
           const userSnap = await getDoc(doc(db, "users", data.userId));
@@ -193,6 +195,7 @@ export default function ListingDetailPage() {
         type: editType,
         clothingType: editType === "clothes" ? editClothingType : undefined,
         imageUrls: editImageUrls.length > 0 ? editImageUrls : undefined,
+        isPrivate: editIsPrivate,
       });
       setListing(updated);
       setEditing(false);
@@ -391,6 +394,23 @@ export default function ListingDetailPage() {
               listingId={id}
             />
 
+            <div className="rounded-lg border border-border bg-card p-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editIsPrivate}
+                  onChange={(e) => setEditIsPrivate(e.target.checked)}
+                  className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <div>
+                  <p className="font-medium text-sm">Private to my school</p>
+                  <p className="text-xs text-muted-foreground">
+                    Only students from your school will see this listing
+                  </p>
+                </div>
+              </label>
+            </div>
+
             <div className="flex gap-4">
               <button
                 onClick={() => setEditing(false)}
@@ -428,7 +448,7 @@ export default function ListingDetailPage() {
                 <h1 className="mt-3 text-2xl font-bold">{listing.title}</h1>
                 <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
                   <span>
-                    {new Date(listing.createdAt.seconds * 1000).toLocaleDateString()}
+                    {formatDate(listing.createdAt)}
                   </span>
                   {listing.price > 0 && (
                     <span className="text-lg font-semibold text-green-600">
@@ -486,11 +506,22 @@ export default function ListingDetailPage() {
                     <p className="font-medium">
                       {sellerInfo.firstName} {sellerInfo.lastName}
                     </p>
-                    {sellerSchool && (
+                    {sellerSchool && sellerInfo.schoolId ? (
+                      <Link
+                        href={`/schools/${sellerInfo.schoolId}`}
+                        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+                      >
+                        <span>🎓</span>
+                        <span>{sellerSchool.name} ({sellerSchool.state})</span>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </Link>
+                    ) : sellerSchool ? (
                       <p className="text-sm text-muted-foreground">
                         🎓 {sellerSchool.name} ({sellerSchool.state})
                       </p>
-                    )}
+                    ) : null}
                   </div>
                   <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

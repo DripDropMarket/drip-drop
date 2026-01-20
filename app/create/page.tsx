@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
 import { createListing } from "@/app/views/listings";
 import { ListingType, ClothingType } from "@/app/lib/types";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/app/lib/firebase";
 import ImageUpload from "@/app/components/image-upload";
 
 const typeOptions: { value: ListingType; label: string }[] = [
@@ -37,8 +39,28 @@ export default function CreateListingPage() {
   const [type, setType] = useState<ListingType>("other");
   const [clothingType, setClothingType] = useState<ClothingType | undefined>(undefined);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isPrivate, setIsPrivate] = useState(true);
+  const [schoolName, setSchoolName] = useState("your school");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSchoolName() {
+      if (user && db) {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          if (userData.schoolId) {
+            const schoolSnap = await getDoc(doc(db, "schools", userData.schoolId));
+            if (schoolSnap.exists()) {
+              setSchoolName(schoolSnap.data().name);
+            }
+          }
+        }
+      }
+    }
+    fetchSchoolName();
+  }, [user]);
 
   if (loading) {
     return (
@@ -89,6 +111,7 @@ export default function CreateListingPage() {
         type,
         clothingType: type === "clothes" ? clothingType : undefined,
         imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+        isPrivate,
       });
       router.push(`/listings/${listing.id}`);
     } catch (err) {
@@ -234,6 +257,23 @@ export default function CreateListingPage() {
                 maxImages={10}
               />
             </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+                className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <div>
+                <p className="font-medium text-sm">Private to my school</p>
+                <p className="text-xs text-muted-foreground">
+                  Only students from {schoolName} will see this listing
+                </p>
+              </div>
+            </label>
           </div>
 
           <div className="flex gap-4 pt-4">

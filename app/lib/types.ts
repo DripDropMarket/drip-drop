@@ -12,6 +12,7 @@ export interface Listing {
   clothingType?: ClothingType;
   userId: string;
   schoolId?: string;
+  isPrivate: boolean;
   createdAt: Timestamp;
   imageUrls?: string[];
 }
@@ -25,6 +26,7 @@ export interface ListingData {
   clothingType?: ClothingType;
   userId: string;
   schoolId?: string;
+  isPrivate: boolean;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -39,6 +41,7 @@ export interface CreateListingInput {
   type: ListingType;
   clothingType?: ClothingType;
   imageUrls?: string[];
+  isPrivate?: boolean;
 }
 
 export interface UpdateListingInput {
@@ -48,6 +51,7 @@ export interface UpdateListingInput {
   type?: ListingType;
   clothingType?: ClothingType;
   imageUrls?: string[];
+  isPrivate?: boolean;
 }
 
 export interface SavedListing {
@@ -153,6 +157,70 @@ export type USState =
   | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ"
   | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "OR" | "PA" | "RI" | "SC"
   | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY" | "DC";
+
+export interface TimestampData {
+  seconds: number;
+  nanoseconds: number;
+}
+
+function getSecondsFromTimestamp(timestamp: any): number {
+  if (!timestamp) return 0;
+  if (typeof timestamp === 'number') return timestamp;
+  if (typeof timestamp === 'object') {
+    if ('seconds' in timestamp) return (timestamp as TimestampData).seconds;
+    if ('_seconds' in timestamp) return timestamp._seconds;
+    if ('toMillis' in timestamp && typeof timestamp.toMillis === 'function') {
+      return Math.floor(timestamp.toMillis() / 1000);
+    }
+  }
+  return 0;
+}
+
+export function formatDate(timestamp: TimestampData | undefined | null): string {
+  const seconds = getSecondsFromTimestamp(timestamp);
+  
+  if (!seconds || seconds <= 0) {
+    return "";
+  }
+  
+  const date = new Date(seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+export function formatDateTime(timestamp: TimestampData | undefined | null): string {
+  const seconds = getSecondsFromTimestamp(timestamp);
+  
+  if (!seconds || seconds <= 0) {
+    return "";
+  }
+  
+  const date = new Date(seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleString();
+}
+
+export function formatTime(timestamp: TimestampData | undefined | null): string {
+  const seconds = getSecondsFromTimestamp(timestamp);
+  
+  if (!seconds || seconds <= 0) {
+    return "";
+  }
+  
+  const date = new Date(seconds * 1000);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
 export interface School {
   id: string;

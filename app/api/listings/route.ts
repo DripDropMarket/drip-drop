@@ -1,6 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB, verifyAuthToken, getAdminAuth } from "../helpers";
-import { ListingType, CreateListingInput, ListingData, ClothingType } from "@/app/lib/types";
+import { ListingType, CreateListingInput, ListingData, ClothingType, TimestampData } from "@/app/lib/types";
+
+function extractTimestamp(createdAt: any): TimestampData {
+  if (!createdAt) {
+    return { seconds: 0, nanoseconds: 0 };
+  }
+  
+  if (typeof createdAt === 'object') {
+    if ('seconds' in createdAt && 'nanoseconds' in createdAt) {
+      return {
+        seconds: createdAt.seconds,
+        nanoseconds: createdAt.nanoseconds,
+      };
+    }
+    if ('_seconds' in createdAt && '_nanoseconds' in createdAt) {
+      return {
+        seconds: createdAt._seconds,
+        nanoseconds: createdAt._nanoseconds,
+      };
+    }
+    if (createdAt instanceof Date || typeof createdAt.getTime === 'function') {
+      const time = createdAt.getTime();
+      return {
+        seconds: Math.floor(time / 1000),
+        nanoseconds: 0,
+      };
+    }
+  }
+  
+  if (typeof createdAt === 'number') {
+    return {
+      seconds: createdAt,
+      nanoseconds: 0,
+    };
+  }
+  
+  return { seconds: 0, nanoseconds: 0 };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -80,12 +117,36 @@ export async function GET(request: NextRequest) {
         clothingType: data.clothingType,
         userId: data.userId,
         schoolId: data.schoolId,
-        createdAt: {
-          seconds: data.createdAt?.seconds || 0,
-          nanoseconds: data.createdAt?.nanoseconds || 0,
-        },
+        isPrivate: data.isPrivate || false,
+        createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
       });
+    });
+
+    const authHeader = request.headers.get("Authorization");
+    let currentUserId: string | null = null;
+    let currentUserSchoolId: string | null = null;
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const firebaseAuth = getAdminAuth();
+        const token = authHeader.split(" ")[1];
+        const decodedToken = await firebaseAuth.verifyIdToken(token);
+        currentUserId = decodedToken.uid;
+
+        const userDoc = await db.collection("users").doc(currentUserId).get();
+        const userData = userDoc.data();
+        currentUserSchoolId = userData?.schoolId;
+      } catch (err) {
+        console.error("Error verifying token:", err);
+      }
+    }
+
+    listings = listings.filter((listing) => {
+      if (listing.userId === currentUserId) return true;
+      if (!listing.isPrivate) return true;
+      if (currentUserSchoolId && listing.schoolId === currentUserSchoolId) return true;
+      return false;
     });
 
     if (type) {
@@ -158,6 +219,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       userId: userId,
       schoolId: schoolId || null,
+      isPrivate: body.isPrivate !== false,
       createdAt: new Date(),
       imageUrls: body.imageUrls || [],
     };
@@ -176,6 +238,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       userId: userId,
       schoolId: schoolId || null,
+      isPrivate: body.isPrivate !== false,
       createdAt: {
         seconds: Date.now() / 1000,
         nanoseconds: 0,

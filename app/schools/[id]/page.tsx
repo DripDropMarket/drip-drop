@@ -43,7 +43,8 @@ export default function SchoolPage() {
 
   const [school, setSchool] = useState<SchoolData | null>(null);
   const [members, setMembers] = useState<MemberData[]>([]);
-  const [listings, setListings] = useState<ListingData[]>([]);
+  const [activeListings, setActiveListings] = useState<ListingData[]>([]);
+  const [soldListings, setSoldListings] = useState<ListingData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -117,7 +118,14 @@ export default function SchoolPage() {
 
         const listingsData = await getListings({ scope: "school" });
         const schoolListings = listingsData.filter((l) => l.schoolId === schoolId);
-        setListings(schoolListings);
+        const active: ListingData[] = [];
+        const sold: ListingData[] = [];
+        for (const l of schoolListings) {
+          if (l.isSold) sold.push(l);
+          else active.push(l);
+        }
+        setActiveListings(active);
+        setSoldListings(sold);
       } catch (err) {
         console.error("Error fetching school:", err);
         setError("Failed to load school");
@@ -189,7 +197,8 @@ export default function SchoolPage() {
         throw new Error(data.error || "Failed to remove listing");
       }
 
-      setListings(listings.filter((l) => l.id !== listingId));
+      setActiveListings(activeListings.filter((l) => l.id !== listingId));
+      setSoldListings(soldListings.filter((l) => l.id !== listingId));
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to remove listing");
     }
@@ -378,7 +387,7 @@ export default function SchoolPage() {
                 <p className="text-sm text-muted-foreground">members</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{listings.length}</p>
+                <p className="text-3xl font-bold text-primary">{activeListings.length}</p>
                 <p className="text-sm text-muted-foreground">listings</p>
               </div>
               {isAdmin && (
@@ -427,7 +436,7 @@ export default function SchoolPage() {
           <div className="lg:col-span-2">
             <h2 className="mb-4 text-xl font-semibold">Listings from {school.name}</h2>
 
-            {listings.length === 0 ? (
+            {activeListings.length === 0 && soldListings.length === 0 ? (
               <div className="rounded-xl border border-border bg-card p-8 text-center">
                 <p className="text-lg text-muted-foreground">
                   No listings from this school yet.
@@ -443,7 +452,7 @@ export default function SchoolPage() {
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                {listings.map((listing) => (
+                {activeListings.map((listing) => (
                   <div
                     key={listing.id}
                     className="group block rounded-xl border border-border bg-card transition-all hover:border-primary/50 hover:shadow-md"
@@ -502,6 +511,77 @@ export default function SchoolPage() {
                     )}
                   </div>
                 ))}
+                {soldListings.length > 0 && (
+                  <>
+                    <div className="col-span-full pt-4">
+                      <h3 className="text-lg font-semibold text-muted-foreground">Sold Listings</h3>
+                    </div>
+                    {soldListings.map((listing) => (
+                      <div
+                        key={listing.id}
+                        className="group block rounded-xl border border-border bg-card transition-all hover:border-primary/50 opacity-75"
+                      >
+                        <Link href={`/listings/${listing.id}`}>
+                          <div className="aspect-[4/3] w-full overflow-hidden rounded-t-xl bg-muted grayscale">
+                            {listing.imageUrls && listing.imageUrls.length > 0 ? (
+                              <img
+                                src={listing.imageUrls[0]}
+                                alt={listing.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                            <div className="absolute top-2 right-2">
+                              <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                                SOLD
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="mb-2 flex items-start justify-between">
+                              <span
+                                className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${
+                                  typeColors[listing.type] || "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {listing.type}
+                              </span>
+                              {listing.price > 0 && (
+                                <span className="font-semibold text-green-600">
+                                  ${listing.price.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                            <h3 className="mb-1 font-semibold text-muted-foreground line-clamp-1">
+                              {listing.title}
+                            </h3>
+                            <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
+                              {listing.description}
+                            </p>
+                          </div>
+                        </Link>
+                        {isAdmin && (
+                          <div className="px-4 pb-4">
+                            <button
+                              onClick={() => handleRemoveListing(listing.id)}
+                              className="w-full inline-flex h-8 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-medium hover:bg-red-200"
+                            >
+                              <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Remove Listing
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>

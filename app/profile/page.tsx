@@ -30,6 +30,7 @@ export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [schoolData, setSchoolData] = useState<{ name: string; state: string } | null>(null);
   const [listings, setListings] = useState<ListingData[]>([]);
+  const [soldListings, setSoldListings] = useState<ListingData[]>([]);
   const [savedListings, setSavedListings] = useState<ListingData[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
   const [savedLoading, setSavedLoading] = useState(true);
@@ -67,7 +68,10 @@ export default function ProfilePage() {
       if (user) {
         try {
           const data = await getUserListings(user.uid);
-          setListings(data);
+          const active = data.filter((l) => !l.isSold);
+          const sold = data.filter((l) => l.isSold);
+          setListings(active);
+          setSoldListings(sold);
         } catch (error) {
           console.error("Error fetching listings:", error);
         } finally {
@@ -107,6 +111,7 @@ export default function ProfilePage() {
     try {
       await deleteListing(id);
       setListings(listings.filter((l) => l.id !== id));
+      setSoldListings(soldListings.filter((l) => l.id !== id));
     } catch (error) {
       console.error("Error deleting listing:", error);
       alert("Failed to delete listing");
@@ -246,79 +251,38 @@ export default function ProfilePage() {
                   Create Your First Listing
                 </Link>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {listings.map((listing) => (
-                  <Link
-                    key={listing.id}
-                    href={`/listings/${listing.id}`}
-                    className="group relative flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50"
-                  >
-                    <div className="h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden">
-                      {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                        <img
-                          src={listing.imageUrls[0]}
-                          alt={listing.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                            typeColors[listing.type] || "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {listing.type}
-                        </span>
-                        {listing.price > 0 && (
-                          <span className="font-semibold text-green-600">
-                            ${listing.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="mb-1 font-semibold group-hover:text-primary truncate">
-                        {listing.title}
-                      </h3>
-                      <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                        {listing.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          {formatDate(listing.createdAt)}
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => router.push(`/listings/${listing.id}`)}
-                            className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleDeleteListing(listing.id);
-                            }}
-                            disabled={deletingId === listing.id}
-                            className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
-                          >
-                            {deletingId === listing.id ? "..." : "Delete"}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </>
+              ) : (
+                <div className="space-y-3">
+                  {listings.map((listing) => (
+                    <ProfileListingItem
+                      key={listing.id}
+                      listing={listing}
+                      deletingId={deletingId}
+                      onDelete={handleDeleteListing}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {soldListings.length > 0 && (
+                <>
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <h2 className="text-lg font-semibold text-muted-foreground">Sold Listings</h2>
+                  </div>
+                  <div className="space-y-3">
+                    {soldListings.map((listing) => (
+                      <ProfileListingItem
+                        key={listing.id}
+                        listing={listing}
+                        isSold
+                        deletingId={deletingId}
+                        onDelete={handleDeleteListing}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
         )}
 
         {activeTab === "saved" && (
@@ -413,5 +377,92 @@ export default function ProfilePage() {
         </button>
       </main>
     </div>
+  );
+}
+
+interface ProfileListingItemProps {
+  listing: ListingData;
+  isSold?: boolean;
+  deletingId: string | null;
+  onDelete: (id: string) => void;
+}
+
+function ProfileListingItem({ listing, isSold, deletingId, onDelete }: ProfileListingItemProps) {
+  const router = useRouter();
+
+  return (
+    <Link
+      key={listing.id}
+      href={`/listings/${listing.id}`}
+      className={`group relative flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50 ${isSold ? "opacity-75" : ""}`}
+    >
+      <div className={`h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden ${isSold ? "grayscale" : ""}`}>
+        {listing.imageUrls && listing.imageUrls.length > 0 ? (
+          <img
+            src={listing.imageUrls[0]}
+            alt={listing.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        )}
+        {isSold && (
+          <div className="absolute top-1 left-1">
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-500">
+              SOLD
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="mb-2 flex items-center gap-2">
+          <span
+            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+              typeColors[listing.type] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {listing.type}
+          </span>
+          {listing.price > 0 && (
+            <span className="font-semibold text-green-600">
+              ${listing.price.toFixed(2)}
+            </span>
+          )}
+        </div>
+        <h3 className={`mb-1 font-semibold truncate ${isSold ? "text-muted-foreground" : "group-hover:text-primary"}`}>
+          {listing.title}
+        </h3>
+        <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
+          {listing.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {formatDate(listing.createdAt)}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push(`/listings/${listing.id}`)}
+              className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
+            >
+              {isSold ? "View" : "Edit"}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                onDelete(listing.id);
+              }}
+              disabled={deletingId === listing.id}
+              className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+            >
+              {deletingId === listing.id ? "..." : "Delete"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }

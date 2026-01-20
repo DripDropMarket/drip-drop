@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
-import { getListing, updateListing, deleteListing, getListings } from "@/app/views/listings";
+import { getListing, updateListing, deleteListing, getListings, markListingAsSold, markListingAsAvailable } from "@/app/views/listings";
 import { toggleSavedListing, getSavedListings } from "@/app/views/saved";
 import { createConversation } from "@/app/views/messaging";
 import { ListingData, ListingType, ClothingType, Condition, Size, formatDate } from "@/app/lib/types";
@@ -125,6 +125,7 @@ export default function ListingDetailPage() {
   const [sellerSchool, setSellerSchool] = useState<{ name: string; state: string } | null>(null);
   const [relatedListings, setRelatedListings] = useState<ListingData[]>([]);
   const [existingConversationId, setExistingConversationId] = useState<string | null>(null);
+  const [markingSold, setMarkingSold] = useState(false);
 
   const isOwner = user && listing && user.uid === listing.userId;
 
@@ -286,6 +287,26 @@ export default function ListingDetailPage() {
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
       setSendingDM(false);
+    }
+  }
+
+  async function handleMarkAsSold() {
+    if (!listing) return;
+    if (!confirm(listing.isSold ? "Mark this listing as available again?" : "Mark this listing as sold?")) return;
+    
+    setMarkingSold(true);
+    try {
+      if (listing.isSold) {
+        const updated = await markListingAsAvailable(listing.id);
+        setListing(updated);
+      } else {
+        const updated = await markListingAsSold(listing.id);
+        setListing(updated);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update listing status");
+    } finally {
+      setMarkingSold(false);
     }
   }
 
@@ -538,6 +559,13 @@ export default function ListingDetailPage() {
                     </span>
                   )}
                 </div>
+                {listing.isSold && (
+                  <div className="mt-2">
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                      SOLD
+                    </span>
+                  </div>
+                )}
               </div>
 
               {isOwner && (
@@ -547,6 +575,17 @@ export default function ListingDetailPage() {
                     className="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
                   >
                     Edit
+                  </button>
+                  <button
+                    onClick={handleMarkAsSold}
+                    disabled={markingSold}
+                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium transition-colors ${
+                      listing.isSold
+                        ? "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
+                        : "border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                    } disabled:opacity-50`}
+                  >
+                    {markingSold ? "..." : listing.isSold ? "Mark Available" : "Mark Sold"}
                   </button>
                   <button
                     onClick={handleDelete}
@@ -615,7 +654,14 @@ export default function ListingDetailPage() {
             </div>
 
             {!isOwner && (
-              existingConversationId ? (
+              listing.isSold ? (
+                <div className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-medium text-gray-500">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  This item has been sold
+                </div>
+              ) : existingConversationId ? (
                 <Link
                   href={`/messages/${existingConversationId}`}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"

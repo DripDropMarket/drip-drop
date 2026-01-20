@@ -63,6 +63,7 @@ export async function GET(
         userId: data.userId,
         schoolId: data.schoolId,
         isPrivate: data.isPrivate || false,
+        isSold: data.isSold || false,
         createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
       });

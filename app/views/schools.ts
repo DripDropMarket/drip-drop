@@ -1,6 +1,15 @@
 import { SchoolData, CreateSchoolInput } from "@/app/lib/types";
 import { authenticatedFetch } from "./helpers";
 
+async function getClientIdToken(): Promise<string> {
+  const { auth } = await import("@/app/lib/firebase");
+  const token = await auth?.currentUser?.getIdToken();
+  if (!token) {
+    throw new Error("Not authenticated");
+  }
+  return token;
+}
+
 export async function getSchools(): Promise<SchoolData[]> {
   const response = await fetch("/api/schools", {
     method: "GET",
@@ -43,14 +52,7 @@ export async function assignUserToSchool(schoolId: string): Promise<void> {
 }
 
 export async function getUserSchoolId(): Promise<string | null> {
-  const token = await import("@/app/lib/firebase").then((firebase) => {
-    const firebaseAuth = firebase.auth;
-    return firebaseAuth?.currentUser?.getIdToken();
-  });
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
+  const token = await getClientIdToken();
 
   const response = await fetch("/api/users/school", {
     method: "GET",

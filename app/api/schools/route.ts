@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB, verifyAuthToken } from "../helpers";
-import { CreateSchoolInput, SchoolData, USState } from "@/app/lib/types";
-
-const US_STATES: USState[] = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"
-];
+import { CreateSchoolInput, SchoolData } from "@/app/lib/types";
+import { US_STATES } from "@/app/lib/constants";
 
 export async function GET() {
   try {

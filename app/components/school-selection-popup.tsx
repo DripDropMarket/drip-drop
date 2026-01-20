@@ -1,18 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SchoolData, USState } from "@/app/lib/types";
-
-const US_STATES: USState[] = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"
-];
+import { SchoolData } from "@/app/lib/types";
+import { US_STATES, USState } from "@/app/lib/constants";
 
 interface SchoolSelectionPopupProps {
   onComplete: () => void;
+}
+
+async function getIdToken(): Promise<string | null> {
+  const { getAuth } = await import("firebase/auth");
+  const auth = getAuth();
+  return auth.currentUser?.getIdToken() || null;
 }
 
 export default function SchoolSelectionPopup({ onComplete }: SchoolSelectionPopupProps) {
@@ -71,10 +70,7 @@ export default function SchoolSelectionPopup({ onComplete }: SchoolSelectionPopu
     setError(null);
 
     try {
-      const token = await import("firebase/auth").then(({ getAuth }) => {
-        const auth = getAuth();
-        return auth.currentUser?.getIdToken();
-      });
+      const token = await getIdToken();
 
       if (!token) {
         throw new Error("Not authenticated");
@@ -109,10 +105,7 @@ export default function SchoolSelectionPopup({ onComplete }: SchoolSelectionPopu
     setError(null);
 
     try {
-      const token = await import("firebase/auth").then(({ getAuth }) => {
-        const auth = getAuth();
-        return auth.currentUser?.getIdToken();
-      });
+      const token = await getIdToken();
 
       if (!token) {
         throw new Error("Not authenticated");

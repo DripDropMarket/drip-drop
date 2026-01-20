@@ -14,11 +14,58 @@ export async function GET(request: NextRequest) {
 
     const db = getDB();
     const listingsRef = db.collection("listings");
-    const q = listingsRef.orderBy("createdAt", "desc");
-    const querySnapshot = await q.get();
+
+    let queryRef: any = listingsRef;
+    let hasScopeFilter = false;
+
+    if (scope && scope !== "all") {
+      const authHeader = request.headers.get("Authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        try {
+          const firebaseAuth = getAdminAuth();
+          const token = authHeader.split(" ")[1];
+          const decodedToken = await firebaseAuth.verifyIdToken(token);
+          const userId = decodedToken.uid;
+
+          const userDoc = await db.collection("users").doc(userId).get();
+          const userData = userDoc.data();
+          const userSchoolId = userData?.schoolId;
+
+          if (userSchoolId) {
+            if (scope === "school") {
+              queryRef = listingsRef.where("schoolId", "==", userSchoolId);
+              hasScopeFilter = true;
+            } else if (scope === "state") {
+              const schoolDoc = await db.collection("schools").doc(userSchoolId).get();
+              const schoolData = schoolDoc.data();
+              if (schoolData) {
+                const stateSchoolsSnapshot = await db.collection("schools")
+                  .where("state", "==", schoolData.state)
+                  .get();
+                
+                const stateSchoolIds = stateSchoolsSnapshot.docs.map((s) => s.id);
+                if (stateSchoolIds.length > 0) {
+                  const maxInClause = 30;
+                  if (stateSchoolIds.length <= maxInClause) {
+                    queryRef = listingsRef.where("schoolId", "in", stateSchoolIds);
+                  } else {
+                    queryRef = listingsRef.where("schoolId", "in", stateSchoolIds.slice(0, maxInClause));
+                  }
+                  hasScopeFilter = true;
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error filtering by scope:", err);
+        }
+      }
+    }
+
+    const querySnapshot = await queryRef.orderBy("createdAt", "desc").get();
     
     let listings: ListingData[] = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach((doc: any) => {
       const data = doc.data();
       listings.push({
         id: doc.id,
@@ -36,40 +83,6 @@ export async function GET(request: NextRequest) {
         imageUrls: data.imageUrls,
       });
     });
-
-    if (scope && scope !== "all") {
-      const authHeader = request.headers.get("Authorization");
-      if (authHeader && authHeader.startsWith("Bearer ")) {
-        try {
-          const firebaseAuth = getAdminAuth();
-          const token = authHeader.split(" ")[1];
-          const decodedToken = await firebaseAuth.verifyIdToken(token);
-          const userId = decodedToken.uid;
-
-          const userDoc = await db.collection("users").doc(userId).get();
-          const userData = userDoc.data();
-          const userSchoolId = userData?.schoolId;
-
-          if (userSchoolId) {
-            const schoolDoc = await db.collection("schools").doc(userSchoolId).get();
-            const schoolData = schoolDoc.data();
-
-            if (scope === "school") {
-              listings = listings.filter((l) => l.schoolId === userSchoolId);
-            } else if (scope === "state" && schoolData) {
-              const stateSchools = await db.collection("schools")
-                .where("state", "==", schoolData.state)
-                .get();
-              
-              const stateSchoolIds = new Set(stateSchools.docs.map((s) => s.id));
-              listings = listings.filter((l) => l.schoolId && stateSchoolIds.has(l.schoolId));
-            }
-          }
-        } catch (err) {
-          console.error("Error filtering by scope:", err);
-        }
-      }
-    }
 
     if (type) {
       listings = listings.filter((l) => l.type === type);

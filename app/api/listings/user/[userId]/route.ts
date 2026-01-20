@@ -24,6 +24,8 @@ export async function GET(
         type: data.type,
         clothingType: data.clothingType,
         userId: data.userId,
+        schoolId: data.schoolId,
+        isPrivate: data.isPrivate || false,
         createdAt: {
           seconds: data.createdAt?.seconds || 0,
           nanoseconds: data.createdAt?.nanoseconds || 0,

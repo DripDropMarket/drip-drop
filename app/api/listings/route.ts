@@ -80,12 +80,39 @@ export async function GET(request: NextRequest) {
         clothingType: data.clothingType,
         userId: data.userId,
         schoolId: data.schoolId,
+        isPrivate: data.isPrivate || false,
         createdAt: {
           seconds: data.createdAt?.seconds || 0,
           nanoseconds: data.createdAt?.nanoseconds || 0,
         },
         imageUrls: data.imageUrls,
       });
+    });
+
+    const authHeader = request.headers.get("Authorization");
+    let currentUserId: string | null = null;
+    let currentUserSchoolId: string | null = null;
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const firebaseAuth = getAdminAuth();
+        const token = authHeader.split(" ")[1];
+        const decodedToken = await firebaseAuth.verifyIdToken(token);
+        currentUserId = decodedToken.uid;
+
+        const userDoc = await db.collection("users").doc(currentUserId).get();
+        const userData = userDoc.data();
+        currentUserSchoolId = userData?.schoolId;
+      } catch (err) {
+        console.error("Error verifying token:", err);
+      }
+    }
+
+    listings = listings.filter((listing) => {
+      if (listing.userId === currentUserId) return true;
+      if (!listing.isPrivate) return true;
+      if (currentUserSchoolId && listing.schoolId === currentUserSchoolId) return true;
+      return false;
     });
 
     if (type) {
@@ -158,6 +185,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       userId: userId,
       schoolId: schoolId || null,
+      isPrivate: body.isPrivate !== false,
       createdAt: new Date(),
       imageUrls: body.imageUrls || [],
     };
@@ -176,6 +204,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       userId: userId,
       schoolId: schoolId || null,
+      isPrivate: body.isPrivate !== false,
       createdAt: {
         seconds: Date.now() / 1000,
         nanoseconds: 0,

@@ -12,6 +12,7 @@ export interface Listing {
   clothingType?: ClothingType;
   userId: string;
   schoolId?: string;
+  isPrivate: boolean;
   createdAt: Timestamp;
   imageUrls?: string[];
 }
@@ -25,6 +26,7 @@ export interface ListingData {
   clothingType?: ClothingType;
   userId: string;
   schoolId?: string;
+  isPrivate: boolean;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -39,6 +41,7 @@ export interface CreateListingInput {
   type: ListingType;
   clothingType?: ClothingType;
   imageUrls?: string[];
+  isPrivate?: boolean;
 }
 
 export interface UpdateListingInput {
@@ -48,6 +51,7 @@ export interface UpdateListingInput {
   type?: ListingType;
   clothingType?: ClothingType;
   imageUrls?: string[];
+  isPrivate?: boolean;
 }
 
 export interface SavedListing {

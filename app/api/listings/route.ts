@@ -122,6 +122,7 @@ export async function GET(request: NextRequest) {
         userId: data.userId,
         schoolId: data.schoolId,
         isPrivate: data.isPrivate || false,
+        isSold: data.isSold || false,
         createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
       });
@@ -147,7 +148,7 @@ export async function GET(request: NextRequest) {
     }
 
     listings = listings.filter((listing) => {
-      if (listing.userId === currentUserId) return true;
+      if (listing.isSold) return false;
       if (!listing.isPrivate) return true;
       if (currentUserSchoolId && listing.schoolId === currentUserSchoolId) return true;
       return false;
@@ -232,6 +233,7 @@ export async function POST(request: NextRequest) {
       userId: userId,
       schoolId: schoolId || null,
       isPrivate: body.isPrivate !== false,
+      isSold: false,
       createdAt: new Date(),
       imageUrls: body.imageUrls || [],
     };
@@ -259,6 +261,7 @@ export async function POST(request: NextRequest) {
       userId: userId,
       schoolId: schoolId || null,
       isPrivate: body.isPrivate !== false,
+      isSold: false,
       createdAt: {
         seconds: Date.now() / 1000,
         nanoseconds: 0,

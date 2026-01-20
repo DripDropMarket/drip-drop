@@ -29,6 +29,7 @@ export async function GET(
       userId: data.userId,
       createdAt: data.createdAt,
       imageUrls: data.imageUrls,
+      isSold: data.isSold || false,
     });
   } catch (error) {
     console.error("Error fetching listing:", error);
@@ -108,12 +109,17 @@ export async function PUT(
       updateData.imageUrls = body.imageUrls;
     }
 
+    if (body.isSold !== undefined) {
+      updateData.isSold = body.isSold;
+    }
+
     await listingRef.update(updateData);
     
     return NextResponse.json({
       id,
       ...listingData,
       price: listingData.price || 0,
+      isSold: listingData.isSold || false,
       ...updateData,
     });
     

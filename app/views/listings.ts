@@ -109,3 +109,31 @@ export async function deleteListing(id: string): Promise<void> {
     throw new Error(error.error || "Failed to delete listing");
   }
 }
+
+export async function markListingAsSold(id: string): Promise<ListingData> {
+  const response = await authenticatedFetch(`/api/listings/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ isSold: true }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to mark listing as sold");
+  }
+
+  return response.json();
+}
+
+export async function markListingAsAvailable(id: string): Promise<ListingData> {
+  const response = await authenticatedFetch(`/api/listings/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ isSold: false }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to mark listing as available");
+  }
+
+  return response.json();
+}

@@ -29,7 +29,7 @@ export default function ConversationPage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
+      router.replace(`/login?redirect=${encodeURIComponent(redirect)}`);
     }
   }, [user, loading, router, redirect]);
 

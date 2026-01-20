@@ -33,12 +33,12 @@ export default function UserListingsPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!uid) {
-        router.push("/listings");
+        router.replace("/listings");
         return;
       }
 
       if (user && user.uid === uid) {
-        router.push("/profile");
+        router.replace("/profile");
         return;
       }
 

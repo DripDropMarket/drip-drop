@@ -212,7 +212,7 @@ export default function ListingDetailPage() {
     setDeleting(true);
     try {
       await deleteListing(id);
-      router.push("/listings");
+      router.replace("/listings");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete listing");
       setDeleting(false);
@@ -243,7 +243,7 @@ export default function ListingDetailPage() {
       );
       setShowDMModal(false);
       setDmMessage("");
-      router.push(`/messages/${conversationId}`);
+      router.replace(`/messages/${conversationId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
@@ -286,7 +286,7 @@ export default function ListingDetailPage() {
           </Link>
           {!isOwner && (
             <button
-              onClick={user ? handleToggleSave : () => router.push(`/login?redirect=/listings/${id}`)}
+                onClick={user ? handleToggleSave : () => router.replace(`/login?redirect=/listings/${id}`)}
               disabled={savingBookmark}
               className="p-2 rounded-full hover:bg-muted transition-colors"
             >
@@ -549,7 +549,7 @@ export default function ListingDetailPage() {
                     if (user) {
                       setShowDMModal(true);
                     } else {
-                      router.push(`/login?redirect=/listings/${id}`);
+                      router.replace(`/login?redirect=/listings/${id}`);
                     }
                   }}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"

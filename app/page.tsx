@@ -35,7 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/listings");
+      router.replace("/listings");
     }
   }, [user, loading, router]);
 

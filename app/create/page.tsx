@@ -113,7 +113,7 @@ export default function CreateListingPage() {
         imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
         isPrivate,
       });
-      router.push(`/listings/${listing.id}`);
+      router.replace(`/listings/${listing.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create listing");
     } finally {

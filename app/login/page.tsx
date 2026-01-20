@@ -13,7 +13,7 @@ function LoginContent() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push(redirect);
+      router.replace(redirect);
     }
   }, [user, loading, router, redirect]);
 

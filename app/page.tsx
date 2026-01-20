@@ -56,7 +56,7 @@ export default function Home() {
             <span className="text-xl font-bold">Drip Drop</span>
           </Link>
           <Link
-            href="/login"
+            href="/login?redirect=/listings"
             className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
             Sign In
@@ -76,7 +76,7 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/login"
+                href="/login?redirect=/listings"
                 className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white transition-colors hover:bg-primary-hover"
               >
                 Get Started
@@ -143,12 +143,12 @@ export default function Home() {
               easy, and built for students.
             </p>
             <div className="mt-8">
-              <Link
-                href="/login"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white transition-colors hover:bg-primary-hover"
-              >
-                Sign Up with Google
-              </Link>
+            <Link
+              href="/login?redirect=/listings"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white transition-colors hover:bg-primary-hover"
+            >
+              Sign Up with Google
+            </Link>
             </div>
           </div>
         </section>

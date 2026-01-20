@@ -58,7 +58,7 @@ export default function CreateListingPage() {
               Sign in to create a listing
             </p>
             <Link
-              href="/login"
+              href="/login?redirect=/create"
               className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
             >
               Sign In

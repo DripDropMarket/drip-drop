@@ -133,7 +133,7 @@ export default function ProfilePage() {
               Sign in to view your profile
             </p>
             <Link
-              href="/login"
+              href="/login?redirect=/profile"
               className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white shadow-lg transition-all hover:bg-primary-hover hover:shadow-xl"
             >
               Sign In

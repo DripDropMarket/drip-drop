@@ -96,7 +96,7 @@ export default function BottomNav() {
           </Link>
         ) : (
           <Link
-            href="/login"
+            href={`/login?redirect=${encodeURIComponent(pathname)}`}
             className={`flex flex-col items-center gap-1 rounded-lg p-2 text-sm font-medium transition-colors ${
               pathname === "/login"
                 ? "text-primary"

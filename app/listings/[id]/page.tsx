@@ -269,7 +269,7 @@ export default function ListingDetailPage() {
             </svg>
           </Link>
           <button
-            onClick={user && !isOwner ? handleToggleSave : () => router.push("/login")}
+            onClick={user && !isOwner ? handleToggleSave : () => router.push(`/login?redirect=/listings/${id}`)}
             disabled={savingBookmark}
             className="p-2 rounded-full hover:bg-muted transition-colors"
           >
@@ -496,7 +496,7 @@ export default function ListingDetailPage() {
                     if (user) {
                       setShowDMModal(true);
                     } else {
-                      router.push("/login");
+                      router.push(`/login?redirect=/listings/${id}`);
                     }
                   }}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"

@@ -99,7 +99,7 @@ export default function Sidebar() {
           </Link>
         ) : (
           <Link
-            href="/login"
+            href={`/login?redirect=${encodeURIComponent(pathname)}`}
             className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
               pathname === "/login"
                 ? "bg-primary text-white"

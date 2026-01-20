@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/lib/auth-context";
 import { getConversation, getMessages, sendMessage } from "@/app/views/messaging";
 import { ConversationData, MessageData } from "@/app/lib/types";
@@ -12,7 +12,9 @@ export default function ConversationPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const conversationId = params.id as string;
+  const redirect = searchParams.get("redirect") || `/messages/${conversationId}`;
 
   const [conversation, setConversation] = useState<ConversationData | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -27,9 +29,9 @@ export default function ConversationPage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, redirect]);
 
   useEffect(() => {
     async function fetchConversation() {

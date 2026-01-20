@@ -1,18 +1,20 @@
 "use client";
 
 import { useAuth } from "@/app/lib/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
   const { user, signInWithGoogle, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/profile";
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/profile");
+      router.push(redirect);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, redirect]);
 
   if (loading) {
     return (

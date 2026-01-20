@@ -12,6 +12,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import ImageUpload from "@/app/components/image-upload";
 import ListingGallery from "@/app/components/listing-gallery";
+import ProgressiveImage from "@/app/components/progressive-image";
 
 const typeLabels: Record<ListingType, string> = {
   clothes: "Clothes",
@@ -694,7 +695,7 @@ export default function ListingDetailPage() {
               <div className="mt-8 pt-6 border-t border-border">
                 <h3 className="mb-4 text-lg font-semibold">More {typeLabels[listing.type]}</h3>
                 <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {relatedListings.map((related) => (
+                  {relatedListings.map((related, index) => (
                     <Link
                       key={related.id}
                       href={`/listings/${related.id}`}
@@ -702,10 +703,12 @@ export default function ListingDetailPage() {
                     >
                       <div className="aspect-square w-full overflow-hidden bg-muted relative">
                         {related.imageUrls && related.imageUrls.length > 0 ? (
-                          <img
+                          <ProgressiveImage
                             src={related.imageUrls[0]}
                             alt={related.title}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            index={index}
+                            priority={index < 6}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-muted/50">

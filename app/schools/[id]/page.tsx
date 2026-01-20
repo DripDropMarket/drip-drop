@@ -9,6 +9,7 @@ import { ListingData, SchoolData, USState } from "@/app/lib/types";
 import { doc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import { US_STATES } from "@/app/lib/constants";
+import ProgressiveImage from "@/app/components/progressive-image";
 
 const typeColors: Record<string, string> = {
   clothes: "bg-blue-100 text-blue-800",
@@ -452,7 +453,7 @@ export default function SchoolPage() {
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                {activeListings.map((listing) => (
+                {activeListings.map((listing, index) => (
                   <div
                     key={listing.id}
                     className="group block rounded-xl border border-border bg-card transition-all hover:border-primary/50 hover:shadow-md"
@@ -460,10 +461,12 @@ export default function SchoolPage() {
                     <Link href={`/listings/${listing.id}`}>
                       <div className="aspect-[4/3] w-full overflow-hidden rounded-t-xl bg-muted">
                         {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                          <img
+                          <ProgressiveImage
                             src={listing.imageUrls[0]}
                             alt={listing.title}
-                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                            className="transition-transform group-hover:scale-105"
+                            index={index}
+                            priority={index < 6}
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-muted-foreground">

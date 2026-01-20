@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getListings } from "@/app/views/listings";
 import { ListingData, ListingType, ClothingType, FilterOptions, formatDate, Condition, Size } from "@/app/lib/types";
 import { useAuth } from "@/app/lib/auth-context";
+import ProgressiveImage from "@/app/components/progressive-image";
 
 type ScopeType = "school" | "state" | "all";
 
@@ -351,7 +352,7 @@ export default function ListingsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {listings.map((listing) => (
+            {listings.map((listing, index) => (
               <Link
                 key={listing.id}
                 href={`/listings/${listing.id}`}
@@ -359,10 +360,12 @@ export default function ListingsPage() {
               >
                 <div className="aspect-square w-full overflow-hidden bg-muted relative">
                   {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                    <img
+                    <ProgressiveImage
                       src={listing.imageUrls[0]}
                       alt={listing.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="transition-transform duration-500 group-hover:scale-110"
+                      index={index}
+                      priority={index < 6}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-muted/50">

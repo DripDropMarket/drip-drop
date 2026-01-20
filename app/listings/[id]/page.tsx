@@ -268,25 +268,23 @@ export default function ListingDetailPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <button
-            onClick={user && !isOwner ? handleToggleSave : () => router.push(`/login?redirect=/listings/${id}`)}
-            disabled={savingBookmark}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
-          >
-            {(!user || isOwner) ? (
-              <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            ) : saved ? (
-              <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            ) : (
-              <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-            )}
-          </button>
+          {!isOwner && (
+            <button
+              onClick={user ? handleToggleSave : () => router.push(`/login?redirect=/listings/${id}`)}
+              disabled={savingBookmark}
+              className="p-2 rounded-full hover:bg-muted transition-colors"
+            >
+              {saved ? (
+                <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              ) : (
+                <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </header>
 

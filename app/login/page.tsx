@@ -8,7 +8,8 @@ function LoginContent() {
   const { user, signInWithGoogle, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/profile";
+  const redirectParam = searchParams.get("redirect");
+  const redirect = redirectParam?.startsWith("/") ? redirectParam : "/profile";
 
   useEffect(() => {
     if (!loading && user) {

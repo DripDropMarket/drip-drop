@@ -73,6 +73,11 @@ export interface SavedListing {
   savedAt: Timestamp;
 }
 
+export interface MessageReaction {
+  userId: string;
+  emoji: string;
+}
+
 export interface Conversation {
   id: string;
   participants: string[];
@@ -80,6 +85,7 @@ export interface Conversation {
   lastMessage: string;
   lastMessageAt: Timestamp;
   createdAt: Timestamp;
+  unreadCount?: Record<string, number>;
 }
 
 export interface Message {
@@ -90,6 +96,7 @@ export interface Message {
   imageUrl?: string;
   createdAt: Timestamp;
   read: boolean;
+  reactions?: Record<string, string[]>;
 }
 
 export interface ConversationData {
@@ -97,7 +104,7 @@ export interface ConversationData {
   participants: string[];
   listingId: string;
   listingTitle: string;
-  otherUser: {
+  otherUser?: {
     uid: string;
     firstName: string;
     lastName: string;
@@ -108,6 +115,7 @@ export interface ConversationData {
     seconds: number;
     nanoseconds: number;
   };
+  unreadCount?: number;
 }
 
 export interface MessageData {
@@ -122,6 +130,13 @@ export interface MessageData {
   };
   read: boolean;
   senderFirstName: string;
+  reactions?: Record<string, string[]>;
+  replyTo?: {
+    messageId: string;
+    senderId: string;
+    content: string;
+    senderFirstName: string;
+  };
 }
 
 export interface User {

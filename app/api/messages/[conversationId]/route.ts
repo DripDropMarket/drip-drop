@@ -50,6 +50,8 @@ export async function GET(
         },
         read: data.read || false,
         senderFirstName,
+        reactions: data.reactions || {},
+        replyTo: data.replyTo || undefined,
       });
     }
     

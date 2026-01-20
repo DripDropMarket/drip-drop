@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/lib/auth-context";
+import { useMessaging } from "@/app/lib/messaging-context";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const { totalUnreadCount } = useMessaging();
 
   const isActive = (path: string) => {
     if (path === "/listings") {
@@ -59,7 +61,7 @@ export default function BottomNav() {
         </Link>
         <Link
           href="/messages"
-          className={`group flex flex-col items-center gap-1.5 rounded-xl px-1 py-2 transition-all duration-200 ${
+          className={`group flex flex-col items-center gap-1.5 rounded-xl px-1 py-2 transition-all duration-200 relative ${
             pathname.startsWith("/messages")
               ? "text-primary bg-primary/10"
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -74,6 +76,11 @@ export default function BottomNav() {
             />
           </svg>
           <span className="text-[10px] font-semibold tracking-wide">Messages</span>
+          {totalUnreadCount > 0 && (
+            <span className="absolute -top-0 right-1/2 translate-x-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+              {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
+            </span>
+          )}
         </Link>
         {user ? (
           <Link

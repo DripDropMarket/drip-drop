@@ -90,18 +90,11 @@ NEXT_PUBLIC_FIREBASE_APP_ID
 
 ## Testing & Building
 
-```bash
-# Lint code
-npm run lint
-
 # Type check (via TypeScript compiler)
 npx tsc --noEmit
 
-# Build
-npm run build
-
-# Development
-npm run dev
+# Build (includes lint)
+npm run build:ISOLATED
 ```
 
 ## Common Tasks

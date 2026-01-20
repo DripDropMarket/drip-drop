@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/lib/auth-context";
+import { useMessaging } from "@/app/lib/messaging-context";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const { totalUnreadCount } = useMessaging();
 
   const isActive = (path: string) => {
     if (path === "/listings") {
@@ -60,7 +62,7 @@ export default function Sidebar() {
         </Link>
         <Link
           href="/messages"
-          className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+          className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 relative ${
             pathname.startsWith("/messages")
               ? "bg-primary text-white shadow-md shadow-primary/20"
               : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -75,6 +77,11 @@ export default function Sidebar() {
             />
           </svg>
           <span>Messages</span>
+          {totalUnreadCount > 0 && (
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+              {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
+            </span>
+          )}
         </Link>
         {user ? (
           <Link

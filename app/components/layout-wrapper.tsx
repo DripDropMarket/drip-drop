@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Sidebar from "./sidebar";
 import BottomNav from "./bottom-nav";
+import { MessagingProvider } from "@/app/lib/messaging-context";
 
 const SchoolSelectionPopup = dynamic(
   () => import("./school-selection-popup"),
@@ -38,11 +39,13 @@ export default function LayoutWrapper({
   return (
     <>
       {showPopup && <SchoolSelectionPopup onComplete={handlePopupComplete} />}
-      {showSidebar && <Sidebar />}
-      <main className={showSidebar ? "lg:pl-64" : ""}>
-        {children}
-      </main>
-      <BottomNav />
+      <MessagingProvider>
+        {showSidebar && <Sidebar />}
+        <main className={showSidebar ? "lg:pl-64" : ""}>
+          {children}
+        </main>
+        <BottomNav />
+      </MessagingProvider>
     </>
   );
 }

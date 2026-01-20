@@ -1,35 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
-import { getConversations } from "@/app/views/messaging";
-import { ConversationData } from "@/app/lib/types";
+import { useMessaging } from "@/app/lib/messaging-context";
 
 export default function MessagesPage() {
   const { user, loading } = useAuth();
-  const [conversations, setConversations] = useState<ConversationData[]>([]);
-  const [conversationsLoading, setConversationsLoading] = useState(true);
+  const { conversations } = useMessaging();
 
-  useEffect(() => {
-    async function fetchConversations() {
-      if (user) {
-        try {
-          const data = await getConversations();
-          setConversations(data);
-        } catch (err) {
-          console.error("Error fetching conversations:", err);
-        } finally {
-          setConversationsLoading(false);
-        }
-      } else {
-        setConversationsLoading(false);
-      }
-    }
-    fetchConversations();
-  }, [user]);
-
-  if (loading || conversationsLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center bg-background pb-20">
         <p className="text-muted-foreground">Loading messages...</p>
@@ -82,8 +62,13 @@ export default function MessagesPage() {
               <Link
                 key={conversation.id}
                 href={`/messages/${conversation.id}`}
-                className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-sm"
+                className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-sm relative"
               >
+                {conversation.unreadCount !== undefined && conversation.unreadCount > 0 && (
+                  <span className="absolute top-3 right-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
+                    {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                  </span>
+                )}
                 {conversation.otherUser?.profilePicture ? (
                   <img
                     src={conversation.otherUser.profilePicture}

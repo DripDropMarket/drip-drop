@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AffiliateInfo } from "@/app/lib/types";
 
 interface ShareLinkPopupProps {
@@ -12,67 +12,84 @@ interface ShareLinkPopupProps {
 export default function ShareLinkPopup({ userId, userName, onClose }: ShareLinkPopupProps) {
   const [affiliate, setAffiliate] = useState<AffiliateInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const creatingRef = useRef(false);
 
   useEffect(() => {
-    fetchOrCreateAffiliate();
-  }, [userId]);
+    let mounted = true;
 
-  async function fetchOrCreateAffiliate() {
-    setLoading(true);
-    setError(null);
+    async function fetchOrCreateAffiliate() {
+      if (creatingRef.current) return;
+      creatingRef.current = true;
 
-    try {
-      const response = await fetch(`/api/affiliates?userId=${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.affiliates && data.affiliates.length > 0) {
-          const aff = data.affiliates[0];
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/affiliates?userId=${userId}`);
+        if (response.ok && mounted) {
+          const data = await response.json();
+          if (data.affiliates && data.affiliates.length > 0) {
+            const aff = data.affiliates[0];
+            setAffiliate({
+              id: aff.id,
+              code: aff.code,
+              linkUrl: aff.linkUrl,
+              clickCount: aff.clickCount || 0,
+              signUpCount: aff.signUpCount || 0,
+            });
+            setLoading(false);
+            creatingRef.current = false;
+            return;
+          }
+        }
+
+        if (!mounted) return;
+
+        const createResponse = await fetch("/api/affiliates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            name: `${userName}'s Referral Link`,
+            commissionRate: 0,
+          }),
+        });
+
+        if (!createResponse.ok) {
+          const error = await createResponse.json();
+          throw new Error(error.error || "Failed to create affiliate link");
+        }
+
+        const data = await createResponse.json();
+        if (mounted) {
           setAffiliate({
-            id: aff.id,
-            code: aff.code,
-            linkUrl: aff.linkUrl,
-            clickCount: aff.clickCount || 0,
-            signUpCount: aff.signUpCount || 0,
+            id: data.id,
+            code: data.code,
+            linkUrl: data.linkUrl,
+            clickCount: 0,
+            signUpCount: 0,
           });
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err.message : "Failed to load link");
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
-          return;
+          creatingRef.current = false;
         }
       }
-
-      setCreating(true);
-      const createResponse = await fetch("/api/affiliates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          name: `${userName}'s Referral Link`,
-          commissionRate: 0,
-        }),
-      });
-
-      if (!createResponse.ok) {
-        const error = await createResponse.json();
-        throw new Error(error.error || "Failed to create affiliate link");
-      }
-
-      const data = await createResponse.json();
-      setAffiliate({
-        id: data.id,
-        code: data.code,
-        linkUrl: data.linkUrl,
-        clickCount: 0,
-        signUpCount: 0,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load link");
-    } finally {
-      setLoading(false);
-      setCreating(false);
     }
-  }
+
+    fetchOrCreateAffiliate();
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, userName]);
 
   async function copyToClipboard() {
     if (!affiliate) return;

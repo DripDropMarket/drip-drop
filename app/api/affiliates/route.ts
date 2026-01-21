@@ -17,11 +17,14 @@ export async function POST(request: NextRequest) {
 
     const affiliateRef = db.collection("affiliates").doc();
     const code = affiliateRef.id.substring(0, 8);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const linkUrl = `${baseUrl}/?utm_source=affiliate&utm_campaign=${code}&utm_affiliate=${affiliateRef.id}`;
 
     await affiliateRef.set({
       userId,
       name,
       code,
+      linkUrl,
       clickCount: 0,
       signUpCount: 0,
       commissionRate,
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       id: affiliateRef.id,
       code,
-      url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/?utm_source=affiliate&utm_campaign=${code}&utm_affiliate=${affiliateRef.id}`,
+      linkUrl,
     });
   } catch (error: any) {
     console.error("Error creating affiliate:", error);

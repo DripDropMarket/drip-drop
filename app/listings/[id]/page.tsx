@@ -337,33 +337,6 @@ export default function ListingDetailPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/listings" className="flex items-center gap-2">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          {!isOwner && (
-            <button
-                onClick={user ? handleToggleSave : () => router.replace(`/login?redirect=/listings/${id}`)}
-              disabled={savingBookmark}
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-            >
-              {saved ? (
-                <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                </svg>
-              )}
-            </button>
-          )}
-        </div>
-      </header>
-
       <main className="container mx-auto max-w-2xl px-4 py-6">
         {error && (
           <div className="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-600">
@@ -613,82 +586,100 @@ export default function ListingDetailPage() {
             <div className="rounded-xl border border-border bg-muted/30 p-6">
               <h2 className="mb-4 text-lg font-semibold">About the Seller</h2>
               {sellerInfo ? (
-                <Link
-                  href={`/users/${listing.userId}`}
-                  className="flex items-center gap-4 hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
-                >
-                  {sellerInfo.profilePicture && (
-                    <img
-                      src={sellerInfo.profilePicture}
-                      alt={`${sellerInfo.firstName} ${sellerInfo.lastName}`}
-                      className="h-12 w-12 rounded-full object-cover"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <p className="font-medium">
-                      {sellerInfo.firstName} {sellerInfo.lastName}
-                    </p>
-                    {sellerSchool && sellerInfo.schoolId ? (
-                      <button
-                        onClick={() => router.push(`/schools/${sellerInfo.schoolId}`)}
-                        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
-                      >
-                        <span>🎓</span>
-                        <span>{sellerSchool.name} ({sellerSchool.state})</span>
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </button>
-                    ) : sellerSchool ? (
-                      <p className="text-sm text-muted-foreground">
-                        🎓 {sellerSchool.name} ({sellerSchool.state})
+                <div className="flex items-center gap-4">
+                  <Link
+                    href={`/users/${listing.userId}`}
+                    className="flex items-center gap-4 hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors flex-1"
+                  >
+                    {sellerInfo.profilePicture && (
+                      <img
+                        src={sellerInfo.profilePicture}
+                        alt={`${sellerInfo.firstName} ${sellerInfo.lastName}`}
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {sellerInfo.firstName} {sellerInfo.lastName}
                       </p>
-                    ) : null}
-                  </div>
-                  <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
+                      {sellerSchool && sellerInfo.schoolId ? (
+                        <button
+                          onClick={() => router.push(`/schools/${sellerInfo.schoolId}`)}
+                          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          <span>{sellerSchool.name}</span>
+                          <span className="text-muted-foreground/60">({sellerSchool.state})</span>
+                        </button>
+                      ) : sellerSchool ? (
+                        <p className="text-sm text-muted-foreground">
+                          {sellerSchool.name} ({sellerSchool.state})
+                        </p>
+                      ) : null}
+                    </div>
+                    <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               ) : (
                 <p className="text-sm text-muted-foreground">User ID: {listing.userId}</p>
               )}
             </div>
 
-            {!isOwner && (
-              listing.isSold ? (
-                <div className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-medium text-gray-500">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  This item has been sold
-                </div>
-              ) : existingConversationId ? (
-                <Link
-                  href={`/messages/${existingConversationId}`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  View Conversation
-                </Link>
-              ) : (
+            {!isOwner && listing.isSold && (
+              <div className="flex w-full items-center justify-center gap-2 rounded-lg bg-muted py-3 font-medium text-muted-foreground">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                This item has been sold
+              </div>
+            )}
+
+            {!isOwner && !listing.isSold && (
+              <div className="flex gap-3">
+                {existingConversationId ? (
+                  <Link
+                    href={`/messages/${existingConversationId}`}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    View Conversation
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (user) {
+                        setShowDMModal(true);
+                      } else {
+                        router.replace(`/login?redirect=/listings/${id}`);
+                      }
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Message Seller
+                  </button>
+                )}
                 <button
-                  onClick={() => {
-                    if (user) {
-                      setShowDMModal(true);
-                    } else {
-                      router.replace(`/login?redirect=/listings/${id}`);
-                    }
-                  }}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-medium text-white transition-colors hover:bg-primary-hover"
+                  onClick={user ? handleToggleSave : () => router.replace(`/login?redirect=/listings/${id}`)}
+                  disabled={savingBookmark}
+                  className="flex h-12 w-12 items-center justify-center rounded-lg border border-input bg-background px-0 text-sm font-medium transition-colors hover:bg-muted"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  Message Seller
+                  {saved ? (
+                    <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                  )}
                 </button>
-              )
+              </div>
             )}
 
             {relatedListings.length > 0 && (

@@ -1,5 +1,12 @@
 import { auth } from "@/app/lib/firebase";
 
+export async function getClientIdToken(): Promise<string> {
+  if (!auth?.currentUser) {
+    throw new Error("User must be authenticated");
+  }
+  return auth.currentUser.getIdToken();
+}
+
 export async function authenticatedFetch(
   endpoint: string,
   options: RequestInit = {}

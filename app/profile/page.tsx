@@ -4,12 +4,11 @@ import { useAuth } from "@/app/lib/auth-context";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/app/lib/firebase";
-import { UserData, ListingData, formatDate } from "@/app/lib/types";
+import { ListingData, formatDate } from "@/app/lib/types";
 import { getUserListings, deleteListing } from "@/app/views/listings";
 import { getSavedListings, toggleSavedListing } from "@/app/views/saved";
 import { getListings } from "@/app/views/listings";
+import { getCurrentUser, UserData } from "@/app/views/user";
 import Link from "next/link";
 import ProgressiveImage from "@/app/components/progressive-image";
 
@@ -29,7 +28,6 @@ export default function ProfilePage() {
   const { user, signOut, loading } = useAuth();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [schoolData, setSchoolData] = useState<{ name: string; state: string } | null>(null);
   const [listings, setListings] = useState<ListingData[]>([]);
   const [soldListings, setSoldListings] = useState<ListingData[]>([]);
   const [savedListings, setSavedListings] = useState<ListingData[]>([]);
@@ -41,23 +39,14 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchUserData() {
-      if (user && db) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const data = userSnap.data() as UserData;
+      if (user) {
+        try {
+          const data = await getCurrentUser();
           setUserData(data);
-
-          if (data.schoolId) {
-            const schoolSnap = await getDoc(doc(db, "schools", data.schoolId));
-            if (schoolSnap.exists()) {
-              const school = schoolSnap.data();
-              setSchoolData({
-                name: school.name,
-                state: school.state,
-              });
-            }
-          }
+          setListings(data.listings.filter((l) => !l.isSold));
+          setSoldListings(data.listings.filter((l) => l.isSold));
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
       }
     }
@@ -135,8 +124,10 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center bg-muted pb-20">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-background pb-20">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
       </div>
     );
   }
@@ -144,18 +135,20 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background pb-20">
-        <main className="container mx-auto max-w-2xl px-4 py-8">
-          <h1 className="mb-8 text-3xl font-bold">Profile</h1>
-          <div className="rounded-2xl border-2 border-primary bg-primary/5 p-12 text-center">
-            <svg className="mx-auto h-16 w-16 text-primary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <p className="mb-6 text-xl font-medium text-foreground">
+        <main className="container mx-auto max-w-2xl px-4 py-8 md:py-12">
+          <h1 className="mb-8 text-3xl font-bold tracking-tight">Profile</h1>
+          <div className="rounded-2xl border border-border/50 bg-card p-12 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+              <svg className="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <p className="mb-6 text-lg font-medium text-card-foreground">
               Sign in to view your profile
             </p>
             <Link
               href="/login?redirect=/profile"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-white shadow-lg transition-all hover:bg-primary-hover hover:shadow-xl"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
             >
               Sign In
             </Link>
@@ -167,11 +160,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <main className="container mx-auto max-w-2xl px-4 py-8">
-        <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+      <main className="container mx-auto max-w-2xl px-4 py-8 md:py-12">
+        <div className="mb-8 rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
           <div className="flex flex-col items-center sm:flex-row sm:items-start sm:gap-6">
             {(userData?.profilePicture || user.photoURL) && (
-              <div className="relative mb-4 h-20 w-20 flex-none overflow-hidden rounded-full sm:mb-0">
+              <div className="relative mb-4 h-20 w-20 flex-none overflow-hidden rounded-full sm:mb-0 ring-2 ring-ring/10">
                 <Image
                   src={userData?.profilePicture || user.photoURL || ""}
                   alt="Profile"
@@ -181,20 +174,17 @@ export default function ProfilePage() {
               </div>
             )}
             <div className="text-center sm:text-left">
-              <p className="mb-1 text-xl font-bold text-card-foreground">
+              <p className="mb-1 text-xl font-bold tracking-tight text-card-foreground">
                 {userData?.firstName} {userData?.lastName}
               </p>
-              <p className="text-sm text-muted-foreground">{userData?.email || user.email}</p>
-              {schoolData && userData?.schoolId && (
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
+              {userData?.school && userData.schoolId && (
                 <Link
                   href={`/schools/${userData.schoolId}`}
-                  className="inline-flex items-center gap-1 text-sm text-primary mt-1 hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mt-2"
                 >
-                  <span>🎓</span>
-                  <span>{schoolData.name} ({schoolData.state})</span>
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+                  <span>{userData.school.name}</span>
+                  <span className="text-muted-foreground/60">({userData.school.state})</span>
                 </Link>
               )}
             </div>
@@ -230,7 +220,7 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold">My Listings</h2>
               <Link
                 href="/create"
-                className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 Create New
               </Link>
@@ -238,52 +228,60 @@ export default function ProfilePage() {
 
             {listingsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-muted-foreground">Loading your listings...</p>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                  <p className="text-sm text-muted-foreground">Loading your listings...</p>
+                </div>
               </div>
             ) : listings.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
-                <p className="mb-4 text-lg text-muted-foreground">
+              <div className="rounded-2xl border border-border/50 bg-card p-8 text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                </div>
+                <p className="mb-4 text-muted-foreground font-medium">
                   You haven&apos;t created any listings yet.
                 </p>
                 <Link
                   href="/create"
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                 >
                   Create Your First Listing
                 </Link>
               </div>
-              ) : (
+            ) : (
+              <div className="space-y-3">
+                {listings.map((listing) => (
+                  <ProfileListingItem
+                    key={listing.id}
+                    listing={listing}
+                    deletingId={deletingId}
+                    onDelete={handleDeleteListing}
+                  />
+                ))}
+              </div>
+            )}
+
+            {soldListings.length > 0 && (
+              <>
+                <div className="mt-8 pt-6 border-t border-border">
+                  <h2 className="text-lg font-semibold text-muted-foreground">Sold Listings</h2>
+                </div>
                 <div className="space-y-3">
-                  {listings.map((listing) => (
+                  {soldListings.map((listing) => (
                     <ProfileListingItem
                       key={listing.id}
                       listing={listing}
+                      isSold
                       deletingId={deletingId}
                       onDelete={handleDeleteListing}
                     />
                   ))}
                 </div>
-              )}
-
-              {soldListings.length > 0 && (
-                <>
-                  <div className="mt-8 pt-6 border-t border-border">
-                    <h2 className="text-lg font-semibold text-muted-foreground">Sold Listings</h2>
-                  </div>
-                  <div className="space-y-3">
-                    {soldListings.map((listing) => (
-                      <ProfileListingItem
-                        key={listing.id}
-                        listing={listing}
-                        isSold
-                        deletingId={deletingId}
-                        onDelete={handleDeleteListing}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
+              </>
+            )}
+          </>
         )}
 
         {activeTab === "saved" && (
@@ -292,16 +290,24 @@ export default function ProfilePage() {
 
             {savedLoading ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-muted-foreground">Loading saved listings...</p>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                  <p className="text-sm text-muted-foreground">Loading saved listings...</p>
+                </div>
               </div>
             ) : savedListings.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
-                <p className="mb-4 text-lg text-muted-foreground">
+              <div className="rounded-2xl border border-border/50 bg-card p-8 text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="mb-4 text-muted-foreground font-medium">
                   You haven&apos;t saved any listings yet.
                 </p>
                 <Link
                   href="/listings"
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                 >
                   Browse Listings
                 </Link>
@@ -359,7 +365,7 @@ export default function ProfilePage() {
                         handleUnsaveListing(listing.id);
                       }}
                       disabled={unsavingId === listing.id}
-                      className="self-center rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-primary disabled:opacity-50"
+                      className="self-center rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-primary disabled:opacity-50 transition-colors"
                     >
                       <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
                         <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -417,7 +423,7 @@ function ProfileListingItem({ listing, isSold, deletingId, onDelete }: ProfileLi
         )}
         {isSold && (
           <div className="absolute top-1 left-1">
-            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-500">
+            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
               SOLD
             </span>
           </div>
@@ -450,7 +456,10 @@ function ProfileListingItem({ listing, isSold, deletingId, onDelete }: ProfileLi
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => router.push(`/listings/${listing.id}`)}
+              onClick={(e) => {
+                e.preventDefault();
+                router.push(`/listings/${listing.id}`);
+              }}
               className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
             >
               {isSold ? "View" : "Edit"}
@@ -461,7 +470,7 @@ function ProfileListingItem({ listing, isSold, deletingId, onDelete }: ProfileLi
                 onDelete(listing.id);
               }}
               disabled={deletingId === listing.id}
-              className="inline-flex h-8 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+              className="inline-flex h-8 items-center justify-center rounded-md border border-destructive/20 bg-destructive/10 px-3 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
             >
               {deletingId === listing.id ? "..." : "Delete"}
             </button>

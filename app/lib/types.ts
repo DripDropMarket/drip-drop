@@ -161,7 +161,7 @@ export interface UserData {
   uid: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   profilePicture: string;
   createdAt: {
     seconds: number;
@@ -286,6 +286,28 @@ export interface UpdateSchoolInput {
 export interface UpdateMemberInput {
   userId: string;
   action: "remove";
+}
+
+export interface MemberData {
+  uid: string;
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+  isAdmin?: boolean;
+}
+
+export interface SchoolWithData {
+  id: string;
+  name: string;
+  state: USState;
+  memberCount: number;
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  adminIds: string[];
+  members: MemberData[];
+  listings: ListingData[];
 }
 
 export interface User {

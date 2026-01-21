@@ -5,9 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
 import { getListings } from "@/app/views/listings";
-import { ListingData, SchoolData, USState } from "@/app/lib/types";
-import { doc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
-import { db } from "@/app/lib/firebase";
+import { getSchool, SchoolWithData } from "@/app/views/schools";
+import { ListingData, USState } from "@/app/lib/types";
 import { US_STATES } from "@/app/lib/constants";
 import ProgressiveImage from "@/app/components/progressive-image";
 
@@ -21,31 +20,13 @@ const typeColors: Record<string, string> = {
   other: "bg-gray-100 text-gray-800",
 };
 
-interface MemberData {
-  uid: string;
-  firstName: string;
-  lastName: string;
-  profilePicture: string;
-  isAdmin?: boolean;
-}
-
-interface AdminUser {
-  uid: string;
-  firstName: string;
-  lastName: string;
-  profilePicture: string;
-}
-
 export default function SchoolPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
   const schoolId = params.id as string;
 
-  const [school, setSchool] = useState<SchoolData | null>(null);
-  const [members, setMembers] = useState<MemberData[]>([]);
-  const [activeListings, setActiveListings] = useState<ListingData[]>([]);
-  const [soldListings, setSoldListings] = useState<ListingData[]>([]);
+  const [school, setSchool] = useState<SchoolWithData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -55,52 +36,17 @@ export default function SchoolPage() {
   const [editingSchool, setEditingSchool] = useState({ name: "", state: "" as USState });
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [admins, setAdmins] = useState<{ uid: string; firstName: string; lastName: string; profilePicture: string }[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
 
   useEffect(() => {
     async function fetchSchoolData() {
-      if (!schoolId || !db) return;
+      if (!schoolId) return;
 
       try {
-        const schoolSnap = await getDoc(doc(db, "schools", schoolId));
-        if (!schoolSnap.exists()) {
-          setError("School not found");
-          setLoading(false);
-          return;
-        }
-
-        const schoolData = schoolSnap.data();
-        setSchool({
-          id: schoolSnap.id,
-          name: schoolData.name,
-          state: schoolData.state,
-          memberCount: schoolData.memberCount || 0,
-          createdAt: {
-            seconds: schoolData.createdAt?.seconds || 0,
-            nanoseconds: schoolData.createdAt?.nanoseconds || 0,
-          },
-          adminIds: schoolData.adminIds || [],
-        });
-        setEditingSchool({ name: schoolData.name, state: schoolData.state });
-
-        const membersQuery = query(
-          collection(db, "users"),
-          where("schoolId", "==", schoolId)
-        );
-        const membersSnap = await getDocs(membersQuery);
-        const adminIds = schoolData.adminIds || [];
-        const membersData = membersSnap.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            uid: doc.id,
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            profilePicture: data.profilePicture || "",
-            isAdmin: adminIds.includes(doc.id),
-          };
-        });
-        setMembers(membersData);
+        const data = await getSchool(schoolId);
+        setSchool(data);
+        setEditingSchool({ name: data.name, state: data.state as USState });
 
         if (user) {
           const token = await user.getIdToken();
@@ -116,17 +62,6 @@ export default function SchoolPage() {
             setAdmins(adminData.admins);
           }
         }
-
-        const listingsData = await getListings({ scope: "school" });
-        const schoolListings = listingsData.filter((l) => l.schoolId === schoolId);
-        const active: ListingData[] = [];
-        const sold: ListingData[] = [];
-        for (const l of schoolListings) {
-          if (l.isSold) sold.push(l);
-          else active.push(l);
-        }
-        setActiveListings(active);
-        setSoldListings(sold);
       } catch (err) {
         console.error("Error fetching school:", err);
         setError("Failed to load school");
@@ -198,8 +133,12 @@ export default function SchoolPage() {
         throw new Error(data.error || "Failed to remove listing");
       }
 
-      setActiveListings(activeListings.filter((l) => l.id !== listingId));
-      setSoldListings(soldListings.filter((l) => l.id !== listingId));
+      if (school) {
+        setSchool({
+          ...school,
+          listings: school.listings.filter((l) => l.id !== listingId),
+        });
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to remove listing");
     }
@@ -227,9 +166,12 @@ export default function SchoolPage() {
         throw new Error(data.error || "Failed to remove member");
       }
 
-      setMembers(members.filter((m) => m.uid !== userId));
       if (school) {
-        setSchool({ ...school, memberCount: school.memberCount - 1 });
+        setSchool({
+          ...school,
+          members: school.members.filter((m) => m.uid !== userId),
+          memberCount: school.memberCount - 1,
+        });
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to remove member");
@@ -286,18 +228,19 @@ export default function SchoolPage() {
         throw new Error(data.error || "Failed to add admin");
       }
 
-      setMembers(members.map((m) =>
-        m.uid === targetUser.uid ? { ...m, isAdmin: true } : m
-      ));
+      setSchool((prev) => prev ? {
+        ...prev,
+        members: prev.members.map((m) =>
+          m.uid === targetUser.uid ? { ...m, isAdmin: true } : m
+        ),
+        adminIds: data.adminIds,
+      } : null);
       setAdmins([...admins, {
         uid: targetUser.uid,
         firstName: targetUser.firstName,
         lastName: targetUser.lastName,
         profilePicture: targetUser.profilePicture,
       }]);
-      if (school) {
-        setSchool({ ...school, adminIds: data.adminIds });
-      }
       setNewAdminEmail("");
       setErrorMessage(null);
     } catch (err) {
@@ -328,13 +271,14 @@ export default function SchoolPage() {
         throw new Error(data.error || "Failed to remove admin");
       }
 
-      setMembers(members.map((m) =>
-        m.uid === userId ? { ...m, isAdmin: false } : m
-      ));
+      setSchool((prev) => prev ? {
+        ...prev,
+        members: prev.members.map((m) =>
+          m.uid === userId ? { ...m, isAdmin: false } : m
+        ),
+        adminIds: data.adminIds,
+      } : null);
       setAdmins(admins.filter((a) => a.uid !== userId));
-      if (school) {
-        setSchool({ ...school, adminIds: data.adminIds });
-      }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to remove admin");
     }
@@ -342,20 +286,22 @@ export default function SchoolPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="flex items-center justify-center bg-background pb-20">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-background pb-20">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        </div>
       </div>
     );
   }
 
   if (error || !school) {
     return (
-      <div className="flex items-center justify-center bg-background pb-20">
+      <div className="flex items-center justify-center min-h-screen bg-background pb-20">
         <div className="text-center">
-          <p className="text-red-500 mb-4">{error || "School not found"}</p>
+          <p className="text-destructive mb-4">{error || "School not found"}</p>
           <Link
             href="/listings"
-            className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-white"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             Back to Listings
           </Link>
@@ -364,37 +310,31 @@ export default function SchoolPage() {
     );
   }
 
+  const activeListings = school.listings.filter((l) => !l.isSold);
+  const soldListings = school.listings.filter((l) => l.isSold);
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <Link href="/listings" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Listings
-          </Link>
-        </div>
-
-        <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8">
+        <div className="mb-8 rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-card-foreground">{school.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-card-foreground">{school.name}</h1>
               <p className="text-muted-foreground">{school.state}</p>
             </div>
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{school.memberCount}</p>
-                <p className="text-sm text-muted-foreground">members</p>
+                <p className="text-3xl font-bold tracking-tight text-primary">{school.memberCount}</p>
+                <p className="text-sm text-muted-foreground font-medium">members</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary">{activeListings.length}</p>
-                <p className="text-sm text-muted-foreground">listings</p>
+                <p className="text-3xl font-bold tracking-tight text-primary">{activeListings.length}</p>
+                <p className="text-sm text-muted-foreground font-medium">listings</p>
               </div>
               {isAdmin && (
                 <button
                   onClick={() => setShowAdminPanel(!showAdminPanel)}
-                  className="inline-flex h-9 items-center justify-center rounded-full bg-secondary px-4 text-sm font-medium text-secondary-foreground"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-secondary px-4 text-sm font-medium text-secondary-foreground shadow-sm transition-colors hover:bg-secondary/90"
                 >
                   <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -413,7 +353,7 @@ export default function SchoolPage() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => setShowEditModal(true)}
-                className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-white"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
               >
                 <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -422,7 +362,7 @@ export default function SchoolPage() {
               </button>
               <button
                 onClick={() => setShowManageAdminsModal(true)}
-                className="inline-flex h-9 items-center justify-center rounded-full bg-secondary px-4 text-sm font-medium text-secondary-foreground"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-secondary px-4 text-sm font-medium text-secondary-foreground shadow-sm transition-colors hover:bg-secondary/90"
               >
                 <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -435,17 +375,22 @@ export default function SchoolPage() {
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <h2 className="mb-4 text-xl font-semibold">Listings from {school.name}</h2>
+            <h2 className="mb-6 text-xl font-semibold">Listings from {school.name}</h2>
 
             {activeListings.length === 0 && soldListings.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
-                <p className="text-lg text-muted-foreground">
+              <div className="rounded-2xl border border-border/50 bg-card p-12 text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                </div>
+                <p className="text-lg text-muted-foreground font-medium">
                   No listings from this school yet.
                 </p>
                 {user && (
                   <Link
                     href="/create"
-                    className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                    className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                   >
                     Create a Listing
                   </Link>
@@ -464,7 +409,7 @@ export default function SchoolPage() {
                           <ProgressiveImage
                             src={listing.imageUrls[0]}
                             alt={listing.title}
-                            className="transition-transform group-hover:scale-105"
+                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
                             index={index}
                             priority={index < 6}
                           />
@@ -485,10 +430,12 @@ export default function SchoolPage() {
                           >
                             {listing.type}
                           </span>
-                          {listing.price > 0 && (
+                          {listing.price > 0 ? (
                             <span className="font-semibold text-green-600">
                               ${listing.price.toFixed(2)}
                             </span>
+                          ) : (
+                            <span className="font-semibold text-green-600">Free</span>
                           )}
                         </div>
                         <h3 className="mb-1 font-semibold group-hover:text-primary line-clamp-1">
@@ -503,7 +450,7 @@ export default function SchoolPage() {
                       <div className="px-4 pb-4">
                         <button
                           onClick={() => handleRemoveListing(listing.id)}
-                          className="w-full inline-flex h-8 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-medium hover:bg-red-200"
+                          className="w-full inline-flex h-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
                         >
                           <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -516,7 +463,7 @@ export default function SchoolPage() {
                 ))}
                 {soldListings.length > 0 && (
                   <>
-                    <div className="col-span-full pt-4">
+                    <div className="col-span-full pt-6">
                       <h3 className="text-lg font-semibold text-muted-foreground">Sold Listings</h3>
                     </div>
                     {soldListings.map((listing) => (
@@ -540,7 +487,7 @@ export default function SchoolPage() {
                               </div>
                             )}
                             <div className="absolute top-2 right-2">
-                              <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500">
+                              <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                                 SOLD
                               </span>
                             </div>
@@ -554,10 +501,12 @@ export default function SchoolPage() {
                               >
                                 {listing.type}
                               </span>
-                              {listing.price > 0 && (
+                              {listing.price > 0 ? (
                                 <span className="font-semibold text-green-600">
                                   ${listing.price.toFixed(2)}
                                 </span>
+                              ) : (
+                                <span className="font-semibold text-green-600">Free</span>
                               )}
                             </div>
                             <h3 className="mb-1 font-semibold text-muted-foreground line-clamp-1">
@@ -572,7 +521,7 @@ export default function SchoolPage() {
                           <div className="px-4 pb-4">
                             <button
                               onClick={() => handleRemoveListing(listing.id)}
-                              className="w-full inline-flex h-8 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-medium hover:bg-red-200"
+                              className="w-full inline-flex h-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
                             >
                               <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -590,15 +539,15 @@ export default function SchoolPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-xl font-semibold">Members</h2>
+            <h2 className="mb-6 text-xl font-semibold">Members</h2>
 
-            {members.length === 0 ? (
-              <div className="rounded-xl border border-border bg-card p-8 text-center">
+            {school.members.length === 0 ? (
+              <div className="rounded-2xl border border-border/50 bg-card p-8 text-center">
                 <p className="text-muted-foreground">No members yet</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {members.map((member) => (
+                {school.members.map((member) => (
                   <div
                     key={member.uid}
                     className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-all hover:border-primary/50"
@@ -636,7 +585,7 @@ export default function SchoolPage() {
                         {member.isAdmin ? (
                           <button
                             onClick={() => handleRemoveAdmin(member.uid)}
-                            className="p-1.5 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                            className="p-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors"
                             title="Remove admin"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -646,7 +595,7 @@ export default function SchoolPage() {
                         ) : (
                           <button
                             onClick={() => handleRemoveMember(member.uid)}
-                            className="p-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
+                            className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                             title="Remove from school"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,13 +618,13 @@ export default function SchoolPage() {
           <div className="bg-card rounded-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">Edit School</h2>
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm">
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                 {errorMessage}
               </div>
             )}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">School Name</label>
+                <label className="block text-sm font-medium mb-2">School Name</label>
                 <input
                   type="text"
                   value={editingSchool.name}
@@ -684,7 +633,7 @@ export default function SchoolPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">State</label>
+                <label className="block text-sm font-medium mb-2">State</label>
                 <select
                   value={editingSchool.state}
                   onChange={(e) => setEditingSchool({ ...editingSchool, state: e.target.value as USState })}
@@ -699,7 +648,7 @@ export default function SchoolPage() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 rounded-lg border border-border text-sm font-medium"
+                className="px-4 py-2 rounded-lg border border-input text-sm font-medium"
               >
                 Cancel
               </button>
@@ -720,17 +669,17 @@ export default function SchoolPage() {
           <div className="bg-card rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">Manage Admins</h2>
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm">
+              <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
                 {errorMessage}
               </div>
             )}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Current Admins</label>
+                <label className="block text-sm font-medium mb-2">Current Admins</label>
                 <div className="space-y-2">
                   {admins.map((admin) => (
-                    <div key={admin.uid} className="flex items-center justify-between p-2 rounded-lg bg-muted">
-                      <div className="flex items-center gap-2">
+                    <div key={admin.uid} className="flex items-center justify-between p-3 rounded-lg bg-muted">
+                      <div className="flex items-center gap-3">
                         {admin.profilePicture ? (
                           <img
                             src={admin.profilePicture}
@@ -740,12 +689,12 @@ export default function SchoolPage() {
                         ) : (
                           <div className="h-8 w-8 rounded-full bg-primary/20" />
                         )}
-                        <span className="text-sm">{admin.firstName} {admin.lastName}</span>
+                        <span className="text-sm font-medium">{admin.firstName} {admin.lastName}</span>
                       </div>
                       {admins.length > 1 && (
                         <button
                           onClick={() => handleRemoveAdmin(admin.uid)}
-                          className="p-1 rounded bg-red-100 text-red-700 hover:bg-red-200"
+                          className="p-2 rounded bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                         >
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -757,7 +706,7 @@ export default function SchoolPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Add Admin</label>
+                <label className="block text-sm font-medium mb-2">Add Admin</label>
                 <p className="text-xs text-muted-foreground mb-2">Enter the member&apos;s email address</p>
                 <div className="flex gap-2">
                   <input
@@ -782,7 +731,7 @@ export default function SchoolPage() {
                   setShowManageAdminsModal(false);
                   setErrorMessage(null);
                 }}
-                className="px-4 py-2 rounded-lg border border-border text-sm font-medium"
+                className="px-4 py-2 rounded-lg border border-input text-sm font-medium"
               >
                 Close
               </button>

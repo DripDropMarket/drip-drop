@@ -1,14 +1,7 @@
-import { SchoolData, CreateSchoolInput } from "@/app/lib/types";
-import { authenticatedFetch } from "./helpers";
+import { SchoolData, CreateSchoolInput, SchoolWithData } from "@/app/lib/types";
+import { authenticatedFetch, getClientIdToken } from "./helpers";
 
-async function getClientIdToken(): Promise<string> {
-  const { auth } = await import("@/app/lib/firebase");
-  const token = await auth?.currentUser?.getIdToken();
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-  return token;
-}
+export type { SchoolWithData };
 
 export async function getSchools(): Promise<SchoolData[]> {
   const response = await fetch("/api/schools", {
@@ -20,6 +13,24 @@ export async function getSchools(): Promise<SchoolData[]> {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch schools: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getSchool(schoolId: string): Promise<SchoolWithData> {
+  const response = await fetch(`/api/schools/${schoolId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("School not found");
+    }
+    throw new Error(`Failed to fetch school: ${response.statusText}`);
   }
 
   return response.json();
@@ -52,14 +63,8 @@ export async function assignUserToSchool(schoolId: string): Promise<void> {
 }
 
 export async function getUserSchoolId(): Promise<string | null> {
-  const token = await getClientIdToken();
-
-  const response = await fetch("/api/users/school", {
+  const response = await authenticatedFetch("/api/users/school", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
-    },
   });
 
   if (!response.ok) {

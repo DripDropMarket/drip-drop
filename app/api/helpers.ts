@@ -90,3 +90,19 @@ export async function verifyAuthToken(request: NextRequest): Promise<DecodedIdTo
 export function createAuthError(message: string = "Unauthorized") {
   return new Error(message);
 }
+
+export function extractTimestamp(createdAt: any): { seconds: number; nanoseconds: number } {
+  if (!createdAt) return { seconds: 0, nanoseconds: 0 };
+  
+  if (typeof createdAt === 'object' && 'seconds' in createdAt) {
+    return { seconds: createdAt.seconds, nanoseconds: createdAt.nanoseconds };
+  }
+  if (typeof createdAt === 'object' && '_seconds' in createdAt) {
+    return { seconds: createdAt._seconds, nanoseconds: createdAt._nanoseconds };
+  }
+  if (typeof createdAt === 'number') {
+    return { seconds: createdAt, nanoseconds: 0 };
+  }
+  
+  return { seconds: 0, nanoseconds: 0 };
+}

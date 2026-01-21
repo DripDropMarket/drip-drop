@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDB, verifyAuthToken } from "../../helpers";
+import { getDB, verifyAuthToken, extractTimestamp } from "../../helpers";
 import { ListingData } from "@/app/lib/types";
-
-function extractTimestamp(createdAt: any): { seconds: number; nanoseconds: number } {
-  if (!createdAt) return { seconds: 0, nanoseconds: 0 };
-  
-  if (typeof createdAt === 'object' && 'seconds' in createdAt) {
-    return { seconds: createdAt.seconds, nanoseconds: createdAt.nanoseconds };
-  }
-  if (typeof createdAt === 'object' && '_seconds' in createdAt) {
-    return { seconds: createdAt._seconds, nanoseconds: createdAt._nanoseconds };
-  }
-  if (typeof createdAt === 'number') {
-    return { seconds: createdAt, nanoseconds: 0 };
-  }
-  
-  return { seconds: 0, nanoseconds: 0 };
-}
 
 export async function GET(request: NextRequest) {
   try {

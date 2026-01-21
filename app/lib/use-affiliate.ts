@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { captureAffiliateFromUrl, getAffiliateData, AffiliateData } from "@/app/lib/affiliate-tracker";
 
 export function useAffiliateCapture() {
@@ -13,5 +13,18 @@ export function useAffiliateCapture() {
 }
 
 export function useHasAffiliateData(): AffiliateData | null {
-  return getAffiliateData();
+  const [data, setData] = useState<AffiliateData | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("thryft_affiliate_data");
+    if (stored) {
+      try {
+        setData(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error parsing affiliate data:", e);
+      }
+    }
+  }, []);
+
+  return data;
 }

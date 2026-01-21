@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
       }
 
       const referredUserDoc = await transaction.get(referredUserRef);
+      if (!referredUserDoc.exists) {
+        throw new Error("Referred user not found");
+      }
       const referredUserData = referredUserDoc.data()!;
       
       if (referredUserData.referredBy) {
@@ -59,10 +62,10 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error crediting affiliate:", error);
     
-    if (error.message === "User already referred") {
+    if (error instanceof Error && error.message === "User already referred") {
       return NextResponse.json(
         { error: "User already referred" },
         { status: 409 }

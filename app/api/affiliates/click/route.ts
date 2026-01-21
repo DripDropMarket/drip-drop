@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { initFirebaseAdmin } from "../../../lib/firebase-admin";
+import { Transaction } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,11 +14,13 @@ export async function POST(request: NextRequest) {
     const db = firestore();
     const affiliateRef = db.collection("affiliates").doc(affiliateId);
 
-    await db.runTransaction(async (transaction: any) => {
+    await db.runTransaction(async (transaction: Transaction) => {
       const affiliateDoc = await transaction.get(affiliateRef);
-      if (!affiliateDoc.exists) return;
+      if (!affiliateDoc.exists) {
+        throw new Error("Affiliate not found");
+      }
       
-      const data = affiliateDoc.data();
+      const data = affiliateDoc.data()!;
       if (!data.isActive) return;
 
       transaction.update(affiliateRef, {
@@ -27,8 +30,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error tracking click:", error);
+    if (error instanceof Error && error.message === "Affiliate not found") {
+      return NextResponse.json({ error: "Affiliate not found" }, { status: 404 });
+    }
     return NextResponse.json({ error: "Failed to track click" }, { status: 500 });
   }
 }

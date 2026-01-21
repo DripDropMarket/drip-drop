@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       linkUrl,
       existing: false,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating affiliate:", error);
     return NextResponse.json(
       { error: "Failed to create affiliate" },
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json({ affiliates });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching affiliates:", error);
     return NextResponse.json(
       { error: "Failed to fetch affiliates" },

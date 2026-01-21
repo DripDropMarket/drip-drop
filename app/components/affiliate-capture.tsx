@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { captureAffiliateFromUrl, AffiliateData } from "@/app/lib/affiliate-tracker";
 
 interface AffiliateCaptureProps {
@@ -42,19 +42,19 @@ export function AffiliateCapture({ children }: AffiliateCaptureProps) {
   return <>{children}</>;
 }
 
-export function useCaptureAffiliate() {
+export function useGetAffiliateData(): AffiliateData | null {
+  const [data, setData] = useState<AffiliateData | null>(null);
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      captureAffiliateFromUrl(window.location.href);
+    const stored = localStorage.getItem("thryft_affiliate_data");
+    if (stored) {
+      try {
+        setData(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error parsing affiliate data:", e);
+      }
     }
   }, []);
-}
 
-export function useGetAffiliateData(): AffiliateData | null {
-  if (typeof window === "undefined") return null;
-  const stored = localStorage.getItem("thryft_affiliate_data");
-  if (stored) {
-    return JSON.parse(stored);
-  }
-  return null;
+  return data;
 }

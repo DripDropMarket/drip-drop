@@ -29,6 +29,7 @@ export async function GET(
       userId: data.userId,
       createdAt: data.createdAt,
       imageUrls: data.imageUrls,
+      isPrivate: data.isPrivate || false,
       isSold: data.isSold || false,
     });
   } catch (error) {
@@ -107,6 +108,10 @@ export async function PUT(
 
     if (body.imageUrls !== undefined) {
       updateData.imageUrls = body.imageUrls;
+    }
+
+    if (body.isPrivate !== undefined) {
+      updateData.isPrivate = body.isPrivate;
     }
 
     if (body.isSold !== undefined) {

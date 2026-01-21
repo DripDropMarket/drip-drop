@@ -7,7 +7,7 @@ import { useAuth } from "@/app/lib/auth-context";
 import { getListing, updateListing, deleteListing, getListings, markListingAsSold, markListingAsAvailable } from "@/app/views/listings";
 import { toggleSavedListing, getSavedListings } from "@/app/views/saved";
 import { createConversation } from "@/app/views/messaging";
-import { ListingData, ListingType, ClothingType, Condition, Size, formatDate } from "@/app/lib/types";
+import { ListingData, ListingType, ClothingType, Condition, Size, Gender, formatDate } from "@/app/lib/types";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import ImageUpload from "@/app/components/image-upload";
@@ -48,6 +48,12 @@ const sizeLabels: Record<Size, string> = {
   l: "L",
   xl: "XL",
   xxl: "XXL",
+};
+
+const genderLabels: Record<Gender, string> = {
+  mens: "Men's",
+  womens: "Women's",
+  unisex: "Unisex",
 };
 
 const typeColors: Record<ListingType, string> = {
@@ -96,6 +102,12 @@ const sizeOptions: { value: Size; label: string }[] = [
   { value: "xxl", label: "XXL" },
 ];
 
+const genderOptions: { value: Gender; label: string }[] = [
+  { value: "mens", label: "Men's" },
+  { value: "womens", label: "Women's" },
+  { value: "unisex", label: "Unisex" },
+];
+
 export default function ListingDetailPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -113,6 +125,7 @@ export default function ListingDetailPage() {
   const [editClothingType, setEditClothingType] = useState<ClothingType | undefined>(undefined);
   const [editCondition, setEditCondition] = useState<Condition | undefined>(undefined);
   const [editSize, setEditSize] = useState<Size | undefined>(undefined);
+  const [editGender, setEditGender] = useState<Gender | undefined>(undefined);
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [editIsPrivate, setEditIsPrivate] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -142,6 +155,7 @@ export default function ListingDetailPage() {
         setEditClothingType(data.clothingType);
         setEditCondition(data.condition);
         setEditSize(data.size);
+        setEditGender(data.gender);
         setEditImageUrls(data.imageUrls || []);
         setEditIsPrivate(data.isPrivate !== false);
 
@@ -234,6 +248,7 @@ export default function ListingDetailPage() {
         clothingType: editType === "clothes" ? editClothingType : undefined,
         condition: editCondition,
         size: editSize,
+        gender: editGender,
         imageUrls: editImageUrls.length > 0 ? editImageUrls : undefined,
         isPrivate: editIsPrivate,
       });
@@ -441,6 +456,22 @@ export default function ListingDetailPage() {
                     ))}
                   </select>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Gender</label>
+                  <select
+                    value={editGender || ""}
+                    onChange={(e) => setEditGender(e.target.value as Gender || undefined)}
+                    className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="">Select</option>
+                    {genderOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
 
@@ -519,6 +550,11 @@ export default function ListingDetailPage() {
                   {listing.size && (
                     <span className="inline-block rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800">
                       {sizeLabels[listing.size]}
+                    </span>
+                  )}
+                  {listing.gender && (
+                    <span className="inline-block rounded-full bg-pink-100 px-3 py-1 text-xs font-medium text-pink-800">
+                      {genderLabels[listing.gender]}
                     </span>
                   )}
                 </div>
@@ -717,6 +753,11 @@ export default function ListingDetailPage() {
                           {related.size && (
                             <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full">
                               {sizeLabels[related.size]}
+                            </span>
+                          )}
+                          {related.gender && (
+                            <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full">
+                              {genderLabels[related.gender]}
                             </span>
                           )}
                         </div>

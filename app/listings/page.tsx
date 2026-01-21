@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getListings } from "@/app/views/listings";
-import { ListingData, ListingType, ClothingType, FilterOptions, formatDate, Condition, Size } from "@/app/lib/types";
+import { ListingData, ListingType, ClothingType, FilterOptions, formatDate, Condition, Size, Gender } from "@/app/lib/types";
 import { useAuth } from "@/app/lib/auth-context";
-import ProgressiveImage from "@/app/components/progressive-image";
+import ListingCard from "@/app/components/listing-card";
 
 type ScopeType = "school" | "state" | "all";
 
@@ -48,37 +48,18 @@ const sizes: { name: string; value: Size | null }[] = [
   { name: "XXL", value: "xxl" },
 ];
 
+const genders: { name: string; value: Gender | null }[] = [
+  { name: "All", value: null },
+  { name: "Men's", value: "mens" },
+  { name: "Women's", value: "womens" },
+  { name: "Unisex", value: "unisex" },
+];
+
 const scopeOptions: { name: string; value: ScopeType; icon: string }[] = [
   { name: "My School", value: "school", icon: "🎓" },
   { name: "My State", value: "state", icon: "🗺️" },
   { name: "All Listings", value: "all", icon: "🌍" },
 ];
-
-const typeLabels: Record<ListingType, string> = {
-  clothes: "Clothes",
-  textbooks: "Textbooks",
-  tech: "Tech",
-  furniture: "Furniture",
-  tickets: "Tickets",
-  services: "Services",
-  other: "Other",
-};
-
-const conditionLabels: Record<Condition, string> = {
-  new: "New",
-  like_new: "Like New",
-  used_good: "Used - Good",
-  used_fair: "Used - Fair",
-};
-
-const sizeLabels: Record<Size, string> = {
-  xs: "XS",
-  s: "S",
-  m: "M",
-  l: "L",
-  xl: "XL",
-  xxl: "XXL",
-};
 
 export default function ListingsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -88,6 +69,7 @@ export default function ListingsPage() {
   const [selectedClothingType, setSelectedClothingType] = useState<ClothingType | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
   const [selectedSize, setSelectedSize] = useState<Size | null>(null);
+  const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -105,6 +87,7 @@ export default function ListingsPage() {
         if (selectedClothingType) filters.clothingType = selectedClothingType;
         if (selectedCondition) filters.condition = selectedCondition;
         if (selectedSize) filters.size = selectedSize;
+        if (selectedGender) filters.gender = selectedGender;
         if (minPrice) filters.minPrice = parseFloat(minPrice);
         if (maxPrice) filters.maxPrice = parseFloat(maxPrice);
         if (searchQuery) filters.search = searchQuery;
@@ -128,12 +111,13 @@ export default function ListingsPage() {
     setSelectedClothingType(null);
     setSelectedCondition(null);
     setSelectedSize(null);
+    setSelectedGender(null);
     setMinPrice("");
     setMaxPrice("");
     setSearchQuery("");
   }
 
-  const hasActiveFilters = selectedCategory || selectedClothingType || selectedCondition || selectedSize || minPrice || maxPrice || searchQuery;
+  const hasActiveFilters = selectedCategory || selectedClothingType || selectedCondition || selectedSize || selectedGender || minPrice || maxPrice || searchQuery;
 
   if (loading || authLoading) {
     return (
@@ -222,13 +206,19 @@ export default function ListingsPage() {
               {showFilters ? "Hide Filters" : "Filter Results"}
                 {hasActiveFilters && (
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                    {Number(Boolean(selectedCategory)) + Number(Boolean(selectedClothingType)) + Number(Boolean(selectedCondition)) + Number(Boolean(selectedSize)) + Number(Boolean(minPrice)) + Number(Boolean(maxPrice)) + Number(Boolean(searchQuery))}
+                    {Number(Boolean(selectedCategory)) + Number(Boolean(selectedClothingType)) + Number(Boolean(selectedCondition)) + Number(Boolean(selectedSize)) + Number(Boolean(selectedGender)) + Number(Boolean(minPrice)) + Number(Boolean(maxPrice)) + Number(Boolean(searchQuery))}
                   </span>
                 )}
             </button>
 
             {showFilters && (
-              <div className="animate-in slide-in-from-top-2 duration-200 space-y-4 rounded-2xl bg-muted/30 p-4 ring-1 ring-inset ring-border/50 lg:mb-4">
+              <div className="animate-in slide-in-from-top-2 duration-200 rounded-2xl bg-muted/30 p-4 ring-1 ring-inset ring-border/50 lg:mb-4 relative space-y-4">
+                <button
+                  onClick={clearFilters}
+                  className="absolute top-4 right-4 text-xs font-medium text-destructive hover:text-destructive/80 transition-colors"
+                >
+                  Reset all
+                </button>
                 {selectedCategory === "clothes" && (
                   <div>
                     <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Clothing Type</label>
@@ -290,6 +280,27 @@ export default function ListingsPage() {
                   </div>
                 )}
 
+                {selectedCategory === "clothes" && (
+                  <div>
+                    <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Gender</label>
+                    <div className="flex flex-wrap gap-2">
+                      {genders.map((gender) => (
+                        <button
+                          key={gender.name}
+                          onClick={() => setSelectedGender(gender.value)}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                            selectedGender === gender.value
+                              ? "bg-primary text-white"
+                              : "bg-background text-muted-foreground ring-1 ring-inset ring-border hover:bg-muted"
+                          }`}
+                        >
+                          {gender.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="mb-3 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price Range</label>
                   <div className="flex items-center gap-3">
@@ -316,19 +327,9 @@ export default function ListingsPage() {
                     </div>
                   </div>
                 </div>
-
-                {hasActiveFilters && (
-                  <div className="flex justify-end pt-2">
-                    <button
-                      onClick={clearFilters}
-                      className="text-xs font-medium text-destructive hover:text-destructive/80 transition-colors"
-                    >
-                      Reset all filters
-                    </button>
-                  </div>
-                )}
               </div>
             )}
+
           </div>
         </div>
 
@@ -353,71 +354,11 @@ export default function ListingsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {listings.map((listing, index) => (
-              <Link
+              <ListingCard
                 key={listing.id}
-                href={`/listings/${listing.id}`}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-border/50 transition-all hover:shadow-md hover:ring-border hover:-translate-y-1"
-              >
-                <div className="aspect-square w-full overflow-hidden bg-muted relative">
-                  {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                    <ProgressiveImage
-                      src={listing.imageUrls[0]}
-                      alt={listing.title}
-                      className="transition-transform duration-500 group-hover:scale-110"
-                      index={index}
-                      priority={index < 6}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-muted/50">
-                      <svg className="h-12 w-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 z-10 flex gap-1">
-                    {listing.condition && (
-                      <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full">
-                        {conditionLabels[listing.condition]}
-                      </span>
-                    )}
-                    {listing.size && (
-                      <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full">
-                        {sizeLabels[listing.size]}
-                      </span>
-                    )}
-                    <span className="inline-block backdrop-blur-md bg-black/40 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                      {typeLabels[listing.type]}
-                    </span>
-                  </div>
-                  {listing.imageUrls && listing.imageUrls.length > 1 && (
-                    <div className="absolute bottom-2 right-2 rounded-full bg-black/60 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white">
-                      +{listing.imageUrls.length - 1}
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col flex-1 p-3 sm:p-4">
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-1 mb-1">
-                    {listing.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
-                    {listing.description}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto">
-                    {listing.price > 0 ? (
-                      <span className="font-bold text-base sm:text-lg text-primary">
-                        ${listing.price.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="font-bold text-base sm:text-lg text-green-600">
-                        Free
-                      </span>
-                    )}
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">
-                      {formatDate(listing.createdAt)}
-                    </span>
-                  </div>
-                </div>
-              </Link>
+                listing={listing}
+                index={index}
+              />
             ))}
           </div>
         )}

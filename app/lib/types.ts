@@ -4,6 +4,7 @@ export type ListingType = "clothes" | "textbooks" | "tech" | "furniture" | "tick
 export type ClothingType = "tops" | "bottoms" | "outerwear" | "footwear" | "accessories" | "dresses" | "other";
 export type Condition = "new" | "like_new" | "used_good" | "used_fair";
 export type Size = "xs" | "s" | "m" | "l" | "xl" | "xxl";
+export type Gender = "mens" | "womens" | "unisex";
 
 export interface Listing {
   id: string;
@@ -14,6 +15,7 @@ export interface Listing {
   clothingType?: ClothingType;
   condition?: Condition;
   size?: Size;
+  gender?: Gender;
   userId: string;
   schoolId?: string;
   isPrivate: boolean;
@@ -31,6 +33,7 @@ export interface ListingData {
   clothingType?: ClothingType;
   condition?: Condition;
   size?: Size;
+  gender?: Gender;
   userId: string;
   schoolId?: string;
   isPrivate: boolean;
@@ -50,6 +53,7 @@ export interface CreateListingInput {
   clothingType?: ClothingType;
   condition?: Condition;
   size?: Size;
+  gender?: Gender;
   imageUrls?: string[];
   isPrivate?: boolean;
 }
@@ -62,6 +66,7 @@ export interface UpdateListingInput {
   clothingType?: ClothingType;
   condition?: Condition;
   size?: Size;
+  gender?: Gender;
   imageUrls?: string[];
   isPrivate?: boolean;
   isSold?: boolean;
@@ -175,6 +180,7 @@ export interface FilterOptions {
   clothingType?: ClothingType;
   condition?: Condition;
   size?: Size;
+  gender?: Gender;
   minPrice?: number;
   maxPrice?: number;
   search?: string;

@@ -50,6 +50,7 @@ export async function GET(
         clothingType: data.clothingType,
         condition: data.condition,
         size: data.size,
+        gender: data.gender,
         userId: data.userId,
         schoolId: data.schoolId,
         isPrivate: data.isPrivate || false,

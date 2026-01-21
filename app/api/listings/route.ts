@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB, verifyAuthToken, getAdminAuth } from "../helpers";
-import { ListingType, CreateListingInput, ListingData, ClothingType, TimestampData, Condition, Size } from "@/app/lib/types";
+import { ListingType, CreateListingInput, ListingData, ClothingType, TimestampData, Condition, Size, Gender } from "@/app/lib/types";
 
 function extractTimestamp(createdAt: any): TimestampData {
   if (!createdAt) {
@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     const clothingType = searchParams.get("clothingType") as ClothingType | null;
     const condition = searchParams.get("condition") as Condition | null;
     const size = searchParams.get("size") as Size | null;
+    const gender = searchParams.get("gender") as Gender | null;
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const search = searchParams.get("search");
@@ -119,6 +120,7 @@ export async function GET(request: NextRequest) {
         clothingType: data.clothingType,
         condition: data.condition,
         size: data.size,
+        gender: data.gender,
         userId: data.userId,
         schoolId: data.schoolId,
         isPrivate: data.isPrivate || false,
@@ -168,6 +170,10 @@ export async function GET(request: NextRequest) {
 
     if (size) {
       listings = listings.filter((l) => l.size === size);
+    }
+
+    if (gender) {
+      listings = listings.filter((l) => l.gender === gender);
     }
 
     if (minPrice) {
@@ -250,6 +256,10 @@ export async function POST(request: NextRequest) {
       listingData.size = body.size;
     }
     
+    if (body.gender !== undefined) {
+      listingData.gender = body.gender;
+    }
+    
     const docRef = await listingsRef.add(listingData);
     
     const responseData: Record<string, unknown> = {
@@ -279,6 +289,10 @@ export async function POST(request: NextRequest) {
     
     if (body.size !== undefined) {
       responseData.size = body.size;
+    }
+    
+    if (body.gender !== undefined) {
+      responseData.gender = body.gender;
     }
     
     return NextResponse.json(responseData, { status: 201 });

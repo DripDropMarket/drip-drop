@@ -11,16 +11,7 @@ import { getListings } from "@/app/views/listings";
 import { getCurrentUser, UserData } from "@/app/views/user";
 import Link from "next/link";
 import ProgressiveImage from "@/app/components/progressive-image";
-
-const typeColors: Record<string, string> = {
-  clothes: "bg-blue-100 text-blue-800",
-  textbooks: "bg-green-100 text-green-800",
-  tech: "bg-purple-100 text-purple-800",
-  furniture: "bg-orange-100 text-orange-800",
-  tickets: "bg-red-100 text-red-800",
-  services: "bg-teal-100 text-teal-800",
-  other: "bg-gray-100 text-gray-800",
-};
+import ListingCard from "@/app/components/listing-card";
 
 type TabType = "listings" | "saved";
 
@@ -251,13 +242,41 @@ export default function ProfilePage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
-                {listings.map((listing) => (
-                  <ProfileListingItem
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2">
+                {listings.map((listing, index) => (
+                  <ListingCard
                     key={listing.id}
                     listing={listing}
-                    deletingId={deletingId}
-                    onDelete={handleDeleteListing}
+                    index={index}
+                    actionButtons={
+                      <div className="flex gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            router.push(`/listings/${listing.id}`);
+                          }}
+                          className="p-1.5 rounded-full bg-muted/80 text-muted-foreground hover:bg-muted transition-colors"
+                          title="Edit"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteListing(listing.id);
+                          }}
+                          disabled={deletingId === listing.id}
+                          className="p-1.5 rounded-full bg-destructive/80 text-white hover:bg-destructive transition-colors disabled:opacity-50"
+                          title="Delete"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    }
                   />
                 ))}
               </div>
@@ -268,14 +287,28 @@ export default function ProfilePage() {
                 <div className="mt-8 pt-6 border-t border-border">
                   <h2 className="text-lg font-semibold text-muted-foreground">Sold Listings</h2>
                 </div>
-                <div className="space-y-3">
-                  {soldListings.map((listing) => (
-                    <ProfileListingItem
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2">
+                  {soldListings.map((listing, index) => (
+                    <ListingCard
                       key={listing.id}
                       listing={listing}
+                      index={index}
                       isSold
-                      deletingId={deletingId}
-                      onDelete={handleDeleteListing}
+                      actionButtons={
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleDeleteListing(listing.id);
+                          }}
+                          disabled={deletingId === listing.id}
+                          className="p-1.5 rounded-full bg-destructive/80 text-white hover:bg-destructive transition-colors disabled:opacity-50"
+                          title="Delete"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      }
                     />
                   ))}
                 </div>
@@ -313,65 +346,28 @@ export default function ProfilePage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2">
                 {savedListings.map((listing, index) => (
-                  <Link
+                  <ListingCard
                     key={listing.id}
-                    href={`/listings/${listing.id}`}
-                    className="group flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50"
-                  >
-                    <div className="h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden">
-                      {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                        <ProgressiveImage
-                          src={listing.imageUrls[0]}
-                          alt={listing.title}
-                          className="h-full w-full object-cover"
-                          index={index}
-                          priority={index < 6}
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                            typeColors[listing.type] || "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {listing.type}
-                        </span>
-                        {listing.price > 0 && (
-                          <span className="font-semibold text-green-600">
-                            ${listing.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="mb-1 font-semibold group-hover:text-primary truncate">
-                        {listing.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {listing.description}
-                      </p>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleUnsaveListing(listing.id);
-                      }}
-                      disabled={unsavingId === listing.id}
-                      className="self-center rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-primary disabled:opacity-50 transition-colors"
-                    >
-                      <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                      </svg>
-                    </button>
-                  </Link>
+                    listing={listing}
+                    index={index}
+                    actionButtons={
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleUnsaveListing(listing.id);
+                        }}
+                        disabled={unsavingId === listing.id}
+                        className="p-1.5 rounded-full bg-muted/80 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50"
+                        title="Unsave"
+                      >
+                        <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                          <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+                    }
+                  />
                 ))}
               </div>
             )}
@@ -386,97 +382,5 @@ export default function ProfilePage() {
         </button>
       </main>
     </div>
-  );
-}
-
-interface ProfileListingItemProps {
-  listing: ListingData;
-  isSold?: boolean;
-  deletingId: string | null;
-  onDelete: (id: string) => void;
-}
-
-function ProfileListingItem({ listing, isSold, deletingId, onDelete }: ProfileListingItemProps) {
-  const router = useRouter();
-
-  return (
-    <Link
-      key={listing.id}
-      href={`/listings/${listing.id}`}
-      className={`group relative flex gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/50 ${isSold ? "opacity-75" : ""}`}
-    >
-      <div className={`h-20 w-20 flex-none rounded-lg bg-muted overflow-hidden ${isSold ? "grayscale" : ""}`}>
-        {listing.imageUrls && listing.imageUrls.length > 0 ? (
-          <ProgressiveImage
-            src={listing.imageUrls[0]}
-            alt={listing.title}
-            className="h-full w-full object-cover"
-            index={0}
-            priority
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
-        {isSold && (
-          <div className="absolute top-1 left-1">
-            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-              SOLD
-            </span>
-          </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="mb-2 flex items-center gap-2">
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-              typeColors[listing.type] || "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {listing.type}
-          </span>
-          {listing.price > 0 && (
-            <span className="font-semibold text-green-600">
-              ${listing.price.toFixed(2)}
-            </span>
-          )}
-        </div>
-        <h3 className={`mb-1 font-semibold truncate ${isSold ? "text-muted-foreground" : "group-hover:text-primary"}`}>
-          {listing.title}
-        </h3>
-        <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-          {listing.description}
-        </p>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
-            {formatDate(listing.createdAt)}
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                router.push(`/listings/${listing.id}`);
-              }}
-              className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-            >
-              {isSold ? "View" : "Edit"}
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                onDelete(listing.id);
-              }}
-              disabled={deletingId === listing.id}
-              className="inline-flex h-8 items-center justify-center rounded-md border border-destructive/20 bg-destructive/10 px-3 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
-            >
-              {deletingId === listing.id ? "..." : "Delete"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Link>
   );
 }

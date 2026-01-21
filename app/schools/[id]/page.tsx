@@ -9,6 +9,7 @@ import { getSchool, SchoolWithData } from "@/app/views/schools";
 import { ListingData, USState } from "@/app/lib/types";
 import { US_STATES } from "@/app/lib/constants";
 import ProgressiveImage from "@/app/components/progressive-image";
+import ListingCard from "@/app/components/listing-card";
 
 const typeColors: Record<string, string> = {
   clothes: "bg-blue-100 text-blue-800",
@@ -397,145 +398,60 @@ export default function SchoolPage() {
                 )}
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2">
                 {activeListings.map((listing, index) => (
-                  <div
+                  <ListingCard
                     key={listing.id}
-                    className="group block rounded-xl border border-border bg-card transition-all hover:border-primary/50 hover:shadow-md"
-                  >
-                    <Link href={`/listings/${listing.id}`}>
-                      <div className="aspect-[4/3] w-full overflow-hidden rounded-t-xl bg-muted">
-                        {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                          <ProgressiveImage
-                            src={listing.imageUrls[0]}
-                            alt={listing.title}
-                            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                            index={index}
-                            priority={index < 6}
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                            <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <div className="mb-2 flex items-start justify-between">
-                          <span
-                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${
-                              typeColors[listing.type] || "bg-gray-100 text-gray-800"
-                            }`}
-                          >
-                            {listing.type}
-                          </span>
-                          {listing.price > 0 ? (
-                            <span className="font-semibold text-green-600">
-                              ${listing.price.toFixed(2)}
-                            </span>
-                          ) : (
-                            <span className="font-semibold text-green-600">Free</span>
-                          )}
-                        </div>
-                        <h3 className="mb-1 font-semibold group-hover:text-primary line-clamp-1">
-                          {listing.title}
-                        </h3>
-                        <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                          {listing.description}
-                        </p>
-                      </div>
-                    </Link>
-                    {isAdmin && (
-                      <div className="px-4 pb-4">
-                        <button
-                          onClick={() => handleRemoveListing(listing.id)}
-                          className="w-full inline-flex h-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
-                        >
-                          <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Remove Listing
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                    listing={listing}
+                    index={index}
+                    actionButtons={
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveListing(listing.id);
+                        }}
+                        className="p-1.5 rounded-full bg-destructive/80 text-white hover:bg-destructive transition-colors"
+                        title="Remove Listing"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    }
+                  />
                 ))}
                 {soldListings.length > 0 && (
                   <>
                     <div className="col-span-full pt-6">
                       <h3 className="text-lg font-semibold text-muted-foreground">Sold Listings</h3>
                     </div>
-                    {soldListings.map((listing) => (
-                      <div
+                    {soldListings.map((listing, index) => (
+                      <ListingCard
                         key={listing.id}
-                        className="group block rounded-xl border border-border bg-card transition-all hover:border-primary/50 opacity-75"
-                      >
-                        <Link href={`/listings/${listing.id}`}>
-                          <div className="aspect-[4/3] w-full overflow-hidden rounded-t-xl bg-muted grayscale">
-                            {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                              <img
-                                src={listing.imageUrls[0]}
-                                alt={listing.title}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                            <div className="absolute top-2 right-2">
-                              <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                                SOLD
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-4">
-                            <div className="mb-2 flex items-start justify-between">
-                              <span
-                                className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${
-                                  typeColors[listing.type] || "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {listing.type}
-                              </span>
-                              {listing.price > 0 ? (
-                                <span className="font-semibold text-green-600">
-                                  ${listing.price.toFixed(2)}
-                                </span>
-                              ) : (
-                                <span className="font-semibold text-green-600">Free</span>
-                              )}
-                            </div>
-                            <h3 className="mb-1 font-semibold text-muted-foreground line-clamp-1">
-                              {listing.title}
-                            </h3>
-                            <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                              {listing.description}
-                            </p>
-                          </div>
-                        </Link>
-                        {isAdmin && (
-                          <div className="px-4 pb-4">
-                            <button
-                              onClick={() => handleRemoveListing(listing.id)}
-                              className="w-full inline-flex h-9 items-center justify-center rounded-lg bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
-                            >
-                              <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                              Remove Listing
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                        listing={listing}
+                        index={index}
+                        isSold
+                        actionButtons={
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleRemoveListing(listing.id);
+                            }}
+                            className="p-1.5 rounded-full bg-destructive/80 text-white hover:bg-destructive transition-colors"
+                            title="Remove Listing"
+                          >
+                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        }
+                      />
                     ))}
                   </>
                 )}
               </div>
             )}
+
           </div>
 
           <div>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
 import { getUser, UserData } from "@/app/views/user";
 import { formatDate } from "@/app/lib/types";
-import ProgressiveImage from "@/app/components/progressive-image";
+import ListingCard from "@/app/components/listing-card";
 
 const typeColors: Record<string, string> = {
   clothes: "bg-blue-100 text-blue-800",
@@ -146,84 +146,14 @@ export default function UserListingsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {userData.listings.map((listing, index) => (
-              <Link
+              <ListingCard
                 key={listing.id}
-                href={`/listings/${listing.id}`}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-border/50 transition-all hover:shadow-md hover:ring-border hover:-translate-y-1"
-              >
-                <div className="aspect-[4/3] w-full overflow-hidden bg-muted relative">
-                  {listing.imageUrls && listing.imageUrls.length > 0 ? (
-                    <ProgressiveImage
-                      src={listing.imageUrls[0]}
-                      alt={listing.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      index={index}
-                      priority={index < 6}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground bg-muted/50">
-                      <svg className="h-12 w-12 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2 z-10 flex gap-1">
-                    {listing.condition && (
-                      <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full">
-                        {listing.condition.replace(/_/g, " ")}
-                      </span>
-                    )}
-                    {listing.size && (
-                      <span className="inline-block backdrop-blur-md bg-black/40 text-white text-[10px] font-semibold px-2 py-1 rounded-full uppercase">
-                        {listing.size}
-                      </span>
-                    )}
-                  </div>
-                  {listing.imageUrls && listing.imageUrls.length > 1 && (
-                    <div className="absolute bottom-2 right-2 rounded-full bg-black/60 backdrop-blur-sm px-2 py-0.5 text-[10px] font-medium text-white">
-                      +{listing.imageUrls.length - 1}
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col flex-1 p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        typeColors[listing.type] || "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {listing.type}
-                    </span>
-                    {listing.price > 0 ? (
-                      <span className="font-bold text-lg text-primary whitespace-nowrap">
-                        ${listing.price.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="font-bold text-lg text-green-600 whitespace-nowrap">
-                        Free
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-card-foreground text-sm sm:text-base line-clamp-1 mb-1">
-                    {listing.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
-                    {listing.description}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
-                    <span className="text-xs text-muted-foreground">
-                      {formatDate(listing.createdAt)}
-                    </span>
-                    {listing.isSold && (
-                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                        SOLD
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Link>
+                listing={listing}
+                index={index}
+                isSold={listing.isSold}
+              />
             ))}
           </div>
         )}

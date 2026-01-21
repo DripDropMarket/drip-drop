@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDB, verifyAuthToken } from "../../helpers";
-import { UpdateListingInput, ListingType, Condition, Size } from "@/app/lib/types";
+import { UpdateListingInput, ListingType, Condition, Size, Gender } from "@/app/lib/types";
 
 export async function GET(
   request: NextRequest,
@@ -26,6 +26,7 @@ export async function GET(
       clothingType: data.clothingType,
       condition: data.condition,
       size: data.size,
+      gender: data.gender,
       userId: data.userId,
       createdAt: data.createdAt,
       imageUrls: data.imageUrls,
@@ -104,6 +105,10 @@ export async function PUT(
 
     if (body.size !== undefined) {
       updateData.size = body.size;
+    }
+
+    if (body.gender !== undefined) {
+      updateData.gender = body.gender;
     }
 
     if (body.imageUrls !== undefined) {

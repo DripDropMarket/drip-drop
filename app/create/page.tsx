@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/app/lib/auth-context";
 import { createListing } from "@/app/views/listings";
-import { ListingType, ClothingType, Condition, Size } from "@/app/lib/types";
+import { ListingType, ClothingType, Condition, Size, Gender } from "@/app/lib/types";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import ImageUpload from "@/app/components/image-upload";
@@ -46,6 +46,12 @@ const sizeOptions: { value: Size; label: string }[] = [
   { value: "xxl", label: "XXL" },
 ];
 
+const genderOptions: { value: Gender; label: string }[] = [
+  { value: "mens", label: "Men's" },
+  { value: "womens", label: "Women's" },
+  { value: "unisex", label: "Unisex" },
+];
+
 export default function CreateListingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -56,6 +62,7 @@ export default function CreateListingPage() {
   const [clothingType, setClothingType] = useState<ClothingType | undefined>(undefined);
   const [condition, setCondition] = useState<Condition | undefined>(undefined);
   const [size, setSize] = useState<Size | undefined>(undefined);
+  const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isPrivate, setIsPrivate] = useState(true);
   const [schoolName, setSchoolName] = useState("your school");
@@ -130,6 +137,7 @@ export default function CreateListingPage() {
         clothingType: type === "clothes" ? clothingType : undefined,
         condition,
         size,
+        gender,
         imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
         isPrivate,
       });
@@ -172,7 +180,53 @@ export default function CreateListingPage() {
               />
             </div>
 
+            <div className="space-y-2">
+              <label className="text-sm font-semibold leading-none">
+                Photos
+              </label>
+              <ImageUpload
+                images={imageUrls}
+                onImagesChange={setImageUrls}
+                maxImages={10}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-semibold leading-none">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe condition, size, brand, etc..."
+                required
+                rows={5}
+                className="flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none transition-all"
+              />
+            </div>
+
             <div className="grid gap-6 sm:grid-cols-3">
+              <div className="space-y-2">
+                <label htmlFor="price" className="text-sm font-semibold leading-none">
+                  Price
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                  <input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="0.00"
+                    required
+                    className="flex h-12 w-full rounded-xl border border-input bg-background py-3 pl-8 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label htmlFor="type" className="text-sm font-semibold leading-none">
                   Category
@@ -204,26 +258,6 @@ export default function CreateListingPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="price" className="text-sm font-semibold leading-none">
-                  Price
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                  <input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="0.00"
-                    required
-                    className="flex h-12 w-full rounded-xl border border-input bg-background py-3 pl-8 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
                 <label htmlFor="condition" className="text-sm font-semibold leading-none">
                   Condition
                 </label>
@@ -251,7 +285,7 @@ export default function CreateListingPage() {
             </div>
 
             {type === "clothes" && (
-              <div className="grid gap-6 sm:grid-cols-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="grid gap-6 sm:grid-cols-3 animate-in slide-in-from-top-2 duration-200">
                 <div className="space-y-2">
                   <label htmlFor="clothingType" className="text-sm font-semibold leading-none">
                     Clothing Type
@@ -271,10 +305,10 @@ export default function CreateListingPage() {
                       ))}
                     </select>
                      <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                       </svg>
+                     </div>
                   </div>
                 </div>
 
@@ -297,40 +331,40 @@ export default function CreateListingPage() {
                       ))}
                     </select>
                      <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                       </svg>
+                     </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="gender" className="text-sm font-semibold leading-none">
+                    Gender
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="gender"
+                      value={gender || ""}
+                      onChange={(e) => setGender(e.target.value as Gender || undefined)}
+                      className="flex h-12 w-full appearance-none rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
+                    >
+                      <option value="">Select</option>
+                      {genderOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                     <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                       </svg>
+                     </div>
                   </div>
                 </div>
               </div>
             )}
-
-            <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-semibold leading-none">
-                Description
-              </label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe condition, size, brand, etc..."
-                required
-                rows={5}
-                className="flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none transition-all"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-semibold leading-none">
-                Photos
-              </label>
-              <ImageUpload
-                images={imageUrls}
-                onImagesChange={setImageUrls}
-                maxImages={10}
-              />
-            </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-4">

@@ -367,3 +367,11 @@ export interface AffiliateStats {
   signUpCount: number;
   conversionRate: number;
 }
+
+export interface AffiliateInfo {
+  id: string;
+  code: string;
+  linkUrl: string;
+  clickCount: number;
+  signUpCount: number;
+}

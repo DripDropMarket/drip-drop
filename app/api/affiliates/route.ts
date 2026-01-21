@@ -15,6 +15,9 @@ export async function POST(request: NextRequest) {
     const { firestore } = await initFirebaseAdmin();
     const db = firestore();
 
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userData = userDoc.data();
+    
     const affiliateRef = db.collection("affiliates").doc();
     const code = affiliateRef.id.substring(0, 8);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -22,6 +25,8 @@ export async function POST(request: NextRequest) {
 
     await affiliateRef.set({
       userId,
+      userName: userData?.firstName || "",
+      userLastName: userData?.lastName || "",
       name,
       code,
       linkUrl,

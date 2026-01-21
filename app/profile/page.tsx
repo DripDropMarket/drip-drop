@@ -12,6 +12,7 @@ import { getCurrentUser, UserData } from "@/app/views/user";
 import Link from "next/link";
 import ProgressiveImage from "@/app/components/progressive-image";
 import ListingCard from "@/app/components/listing-card";
+import ShareLinkPopup from "@/app/components/share-link-popup";
 
 type TabType = "listings" | "saved";
 
@@ -27,6 +28,7 @@ export default function ProfilePage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [unsavingId, setUnsavingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("listings");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -164,7 +166,7 @@ export default function ProfilePage() {
                 />
               </div>
             )}
-            <div className="text-center sm:text-left">
+            <div className="text-center sm:text-left flex-1">
               <p className="mb-1 text-xl font-bold tracking-tight text-card-foreground">
                 {userData?.firstName} {userData?.lastName}
               </p>
@@ -179,6 +181,15 @@ export default function ProfilePage() {
                 </Link>
               )}
             </div>
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="mt-4 sm:mt-0 p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+              title="Share link"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -380,6 +391,14 @@ export default function ProfilePage() {
         >
           Sign Out
         </button>
+
+        {showShareModal && user && (
+          <ShareLinkPopup
+            userId={user.uid}
+            userName={`${userData?.firstName || ""} ${userData?.lastName || ""}`.trim()}
+            onClose={() => setShowShareModal(false)}
+          />
+        )}
       </main>
     </div>
   );

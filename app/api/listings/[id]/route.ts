@@ -17,6 +17,29 @@ export async function GET(
     }
     
     const data = listingSnap.data()!;
+    
+    let viewingUserId: string | null = null;
+    const authHeader = request.headers.get("Authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const { getAdminAuth } = await import("../../helpers");
+        const firebaseAuth = getAdminAuth();
+        const token = authHeader.split(" ")[1];
+        const decodedToken = await firebaseAuth.verifyIdToken(token);
+        viewingUserId = decodedToken.uid;
+      } catch (err) {
+        console.error("Error verifying token:", err);
+      }
+    }
+
+    if (viewingUserId && data.userId !== viewingUserId) {
+      const currentViewCount = data.viewCount || 0;
+      await listingRef.update({
+        viewCount: currentViewCount + 1
+      });
+      data.viewCount = currentViewCount + 1;
+    }
+    
     return NextResponse.json({
       id: listingSnap.id,
       title: data.title,

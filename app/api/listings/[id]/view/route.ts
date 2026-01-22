@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDB } from "@/app/api/helpers";
+import { getDB, verifyAuthToken } from "@/app/api/helpers";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const decodedToken = await verifyAuthToken(request);
+    const userId = decodedToken.uid;
     const { id } = await params;
     const db = getDB();
     
@@ -17,6 +19,15 @@ export async function POST(
     }
 
     const currentData = listingSnap.data()!;
+
+    if (currentData.userId === userId) {
+      return NextResponse.json({ 
+        success: true,
+        viewCount: currentData.viewCount || 0,
+        isOwner: true
+      });
+    }
+
     const currentViewCount = currentData.viewCount || 0;
 
     await listingRef.update({
@@ -25,7 +36,8 @@ export async function POST(
 
     return NextResponse.json({ 
       success: true,
-      viewCount: currentViewCount + 1 
+      viewCount: currentViewCount + 1,
+      isOwner: false
     });
   } catch (error) {
     console.error("Error incrementing view count:", error);

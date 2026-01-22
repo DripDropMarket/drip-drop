@@ -192,21 +192,6 @@ export default function ListingDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    async function trackView() {
-      if (listing?.id) {
-        try {
-          await fetch(`/api/listings/${listing.id}/view`, {
-            method: "POST",
-          });
-        } catch (err) {
-          console.error("Failed to track view:", err);
-        }
-      }
-    }
-    trackView();
-  }, [listing?.id]);
-
-  useEffect(() => {
     async function fetchRelatedListings() {
       if (listing && listing.id) {
         try {

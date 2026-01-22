@@ -60,8 +60,6 @@ export interface CreateListingInput {
   gender?: Gender;
   imageUrls?: string[];
   isPrivate?: boolean;
-  viewCount?: number;
-  saveCount?: number;
 }
 
 export interface UpdateListingInput {
@@ -76,8 +74,6 @@ export interface UpdateListingInput {
   imageUrls?: string[];
   isPrivate?: boolean;
   isSold?: boolean;
-  viewCount?: number;
-  saveCount?: number;
 }
 
 export interface SavedListing {

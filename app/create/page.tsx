@@ -64,7 +64,7 @@ export default function CreateListingPage() {
   const [size, setSize] = useState<Size | undefined>(undefined);
   const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [isPrivate, setIsPrivate] = useState(true);
+  const [isPrivate, setIsPrivate] = useState(false);
   const [schoolName, setSchoolName] = useState("your school");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

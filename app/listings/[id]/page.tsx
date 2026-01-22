@@ -192,6 +192,21 @@ export default function ListingDetailPage() {
   }, [id]);
 
   useEffect(() => {
+    async function trackView() {
+      if (listing?.id) {
+        try {
+          await fetch(`/api/listings/${listing.id}/view`, {
+            method: "POST",
+          });
+        } catch (err) {
+          console.error("Failed to track view:", err);
+        }
+      }
+    }
+    trackView();
+  }, [listing?.id]);
+
+  useEffect(() => {
     async function fetchRelatedListings() {
       if (listing && listing.id) {
         try {
@@ -579,31 +594,48 @@ export default function ListingDetailPage() {
               </div>
 
               {isOwner && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setEditing(true)}
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={handleMarkAsSold}
-                    disabled={markingSold}
-                    className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium transition-colors ${
-                      listing.isSold
-                        ? "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
-                        : "border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
-                    } disabled:opacity-50`}
-                  >
-                    {markingSold ? "..." : listing.isSold ? "Mark Available" : "Mark Sold"}
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
-                  >
-                    {deleting ? "Deleting..." : "Delete"}
-                  </button>
+                <div className="space-y-3">
+                  <div className="flex gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      {listing.viewCount || 0} views
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      {listing.saveCount || 0} saves
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleMarkAsSold}
+                      disabled={markingSold}
+                      className={`inline-flex h-9 items-center justify-center rounded-lg border px-4 text-sm font-medium transition-colors ${
+                        listing.isSold
+                          ? "border-green-200 bg-green-50 text-green-600 hover:bg-green-100"
+                          : "border-yellow-200 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                      } disabled:opacity-50`}
+                    >
+                      {markingSold ? "..." : listing.isSold ? "Mark Available" : "Mark Sold"}
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+                    >
+                      {deleting ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

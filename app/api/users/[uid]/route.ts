@@ -55,6 +55,8 @@ export async function GET(
         isSold: data.isSold || false,
         createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
+        viewCount: data.viewCount || 0,
+        saveCount: data.saveCount || 0,
       });
     });
     

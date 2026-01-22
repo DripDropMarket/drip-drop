@@ -47,12 +47,24 @@ export async function POST(request: NextRequest) {
     
     const db = getDB();
     const savedRef = db.collection("savedListings");
+    const listingsRef = db.collection("listings");
     
     const savedDocId = `${userId}_${listingId}`;
     const savedDoc = await savedRef.doc(savedDocId).get();
+    const listingRef = listingsRef.doc(listingId);
+    const listingSnap = await listingRef.get();
     
     if (savedDoc.exists) {
       await savedRef.doc(savedDocId).delete();
+      
+      const listingData = listingSnap.data();
+      if (listingData) {
+        const currentSaveCount = listingData.saveCount || 0;
+        await listingRef.update({
+          saveCount: Math.max(0, currentSaveCount - 1)
+        });
+      }
+      
       return NextResponse.json({ saved: false });
     }
     
@@ -61,6 +73,14 @@ export async function POST(request: NextRequest) {
       userId,
       savedAt: new Date(),
     });
+    
+    const listingData = listingSnap.data();
+    if (listingData) {
+      const currentSaveCount = listingData.saveCount || 0;
+      await listingRef.update({
+        saveCount: currentSaveCount + 1
+      });
+    }
     
     return NextResponse.json({ saved: true });
   } catch (error) {

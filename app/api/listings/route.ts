@@ -131,6 +131,8 @@ export async function GET(request: NextRequest) {
         isSold: data.isSold || false,
         createdAt: extractTimestamp(data.createdAt),
         imageUrls: data.imageUrls,
+        viewCount: data.viewCount || 0,
+        saveCount: data.saveCount || 0,
       });
     });
 
@@ -246,6 +248,8 @@ export async function POST(request: NextRequest) {
       isSold: false,
       createdAt: new Date(),
       imageUrls: body.imageUrls || [],
+      viewCount: 0,
+      saveCount: 0,
     };
     
     if (body.clothingType !== undefined) {
@@ -281,6 +285,8 @@ export async function POST(request: NextRequest) {
         nanoseconds: 0,
       },
       imageUrls: body.imageUrls || [],
+      viewCount: 0,
+      saveCount: 0,
     };
     
     if (body.clothingType !== undefined) {

@@ -32,6 +32,8 @@ export async function GET(
       imageUrls: data.imageUrls,
       isPrivate: data.isPrivate || false,
       isSold: data.isSold || false,
+      viewCount: data.viewCount || 0,
+      saveCount: data.saveCount || 0,
     });
   } catch (error) {
     console.error("Error fetching listing:", error);
